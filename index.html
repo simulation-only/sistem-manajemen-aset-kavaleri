@@ -49,11 +49,26 @@
             overflow-x: hidden;
         }
 
+        /* TEMA MILITER: KOTAK TAJAM (SHARP EDGES) SAJA */
+        .card, 
+        .login-card,
+        .btn, 
+        .form-control, 
+        .modal-content,
+        .modal-header,
+        .toast,
+        .alert,
+        .badge,
+        .info-box,
+        .timeline-item,
+        input,
+        select,
+        textarea {
+            border-radius: 0 !important;
+        }
         /* =========================================
            ROLE BASED ACCESS CONTROL (RBAC) STYLES
            ========================================= */
-        
-        /* Jika Role adalah Viewer, Sembunyikan semua tombol Add, Edit, Delete, dan Upload */
         body[data-role="Viewer"] .btn-primary:not([onclick*="generateReport"]),
         body[data-role="Viewer"] .btn-danger:not(#logoutBtnProfile), /* Pengecualian untuk tombol logout */
         body[data-role="Viewer"] .action-buttons,
@@ -62,7 +77,6 @@
             display: none !important;
         }
 
-        /* Jika Role adalah Teknisi, Sembunyikan aksi di Dashboard */
         body[data-role="Teknisi"] .quick-actions .quick-action-btn:not(:nth-child(5)) {
             display: none !important; /* Hanya sisakan tombol Work Order */
         }
@@ -646,16 +660,21 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--primary-dark);
+            background-color: #ffffff; 
+            color: var(--gray-800); 
+            border-bottom: 1px solid var(--gray-200); 
+            
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            background: var(--primary); /* Warna background mengikuti tema */
-            color: #ffffff; /* Teks putih */
-            z-index: 10;
+            border-radius: 8px 8px 0 0;
+        }
+        .modal-header h2, 
+        .modal-header h3,
+        .modal-header h4 {
+            color: var(--gray-800) !important; 
+            margin: 0;
         }
         .modal-title { 
             font-size: 18px; 
@@ -663,15 +682,15 @@
             color: #ffffff; /* Pastikan teks judul putih */
         }
         .modal-close {
+            color: var(--gray-500); 
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.8); /* Tombol close putih transparan */
-            transition: var(--transition);
+            transition: color 0.2s;
         }
         .modal-close:hover {
-            color: #ffffff; /* Putih solid saat di-hover */
+            color: var(--danger); 
         }
         .modal-body { padding: 24px; }
         .modal-footer {
@@ -756,7 +775,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 3000;
+            z-index: 9999999;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -1079,7 +1098,7 @@
         .timeline::before {
             content: '';
             position: absolute;
-            left: 8px;
+            left: 12px;
             top: 0;
             bottom: 0;
             width: 2px;
@@ -1093,7 +1112,7 @@
             content: '';
             position: absolute;
             left: -26px;
-            top: 4px;
+            top: 0px;
             width: 12px;
             height: 12px;
             border-radius: 50%;
@@ -1109,7 +1128,7 @@
            ========================================= */
         .mission-kanban {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr)); /* Kunci ukurannya di sini */
             gap: 20px;
             margin-top: 15px;
         }
@@ -1863,8 +1882,32 @@
         body.dark-mode .stat-label,
         body.dark-mode .alert,
         body.dark-mode .timeline-content,
+        body.dark-mode .activity-text,
         body.dark-mode .empty-state-title {
             color: var(--text-main) !important;
+        }
+
+        /* ========================================== */
+        /* PERBAIKAN WARNA ALERT MAINTENANCE DI DARK MODE */
+        /* ========================================== */
+
+        body.dark-mode #preventive-alert-box {
+            background: var(--gray-800) !important; /* Ubah background jadi gelap */
+            border-left: 5px solid var(--warning) !important;
+        }
+
+        body.dark-mode #preventive-alert-box h4,
+        body.dark-mode #preventive-alert-box p,
+        body.dark-mode #preventive-alert-box ul,
+        body.dark-mode #preventive-alert-box li,
+        body.dark-mode #preventive-alert-box strong,
+        body.dark-mode #preventive-alert-box div {
+            color: var(--gray-100) !important; /* Paksa semua teks jadi putih/terang */
+        }
+        
+        /* Memastikan ikon segitiga peringatan tetap berwarna kuning/warning */
+        body.dark-mode #preventive-alert-box i.fa-exclamation-triangle {
+            color: var(--warning) !important; 
         }
 
         /* Khusus Judul dan Angka Penting dibuat lebih putih mencolok */
@@ -1887,7 +1930,8 @@
             border-bottom-color: var(--primary-dark) !important;
         }
         body.dark-mode .modal-header .modal-title,
-        body.dark-mode .modal-header i {
+        body.dark-mode .modal-header i,
+        body.dark-mode .bar-value{
             color: #1c251b !important; /* Teks jadi warna hijau sangat gelap/hitam */
         }
         body.dark-mode .modal-header .modal-close {
@@ -1957,6 +2001,39 @@
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         .theme-switch input:checked + .slider { background-color: var(--primary); }
         .theme-switch input:checked + .slider:before { transform: translateX(24px); }
+
+        #mapContainer:fullscreen,
+        #mapContainer:-webkit-full-screen {
+            height: 100vh !important;
+            width: 100vw !important;
+            background-color: var(--white) !important;
+            border-radius: 0 !important;
+        }
+
+        /* Memaksa kanvas peta di dalamnya ikut melar ke bawah */
+        #mapContainer:fullscreen #realMap,
+        #mapContainer:-webkit-full-screen #realMap {
+            height: 100vh !important;
+            border-radius: 0 !important;
+        }
+        .td-status {
+            white-space: nowrap;
+        }
+
+        .alamat-item {
+            padding: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            line-height: 1.4;
+        }
+        .alamat-item:hover {
+            background-color: var(--gray-100);
+            color: var(--primary);
+        }
+        .alamat-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -2057,6 +2134,9 @@
                 </a>
                 <a class="nav-item" data-page="lokasi">
                     <i class="fas fa-map-marker-alt"></i><span>Lokasi Satuan</span>
+                </a>
+                <a class="nav-item" data-page="vendor">
+                    <i class="fas fa-store"></i> <span>Master Vendor</span>
                 </a>
                 
                 <div class="nav-section">Reports & Admin</div>
@@ -2304,7 +2384,7 @@
                         </div>
 
                         <div class="card">
-                            <div class="card-header"><h3 class="card-title">⚠️ Maintenance Jatuh Tempo</h3></div>
+                            <div class="card-header"><h3 class="card-title">🔧 Maintenance Aset</h3></div>
                             <div class="card-body"><div class="activity-feed" id="maintenanceAlerts"></div></div>
                         </div>
 
@@ -3286,7 +3366,6 @@
                                             <option value="baik">Baik</option>
                                             <option value="rusak_ringan">Rusak Ringan</option>
                                             <option value="rusak_berat">Rusak Berat</option>
-                                            <option value="maintenance">Dalam Maintenance</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -3354,6 +3433,48 @@
                             <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--gray-200); padding-top: 16px;">
                                 <button class="btn btn-secondary" onclick="showPage('daftar-aset')">Batal</button>
                                 <button class="btn btn-primary" onclick="saveAset()"><i class="fas fa-save"></i> Simpan Data Aset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="page-vendor" class="page">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-store"></i> Master Data Vendor / Rekanan</h3>
+                            <button class="btn btn-primary btn-sm" onclick="openModal('modalVendor')">
+                                <i class="fas fa-plus"></i> Tambah Vendor
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="search-filter">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" class="form-control" placeholder="Cari nama vendor..." id="searchVendor" oninput="renderVendor()">
+                                </div>
+                                <select class="form-control" style="width: auto;" id="filterSpesialisasiVendor" onchange="renderVendor()">
+                                    <option value="">Semua Spesialisasi</option>
+                                    <option value="Mesin">Mesin</option>
+                                    <option value="Optik/Sensor">Optik/Sensor</option>
+                                    <option value="Rantai/Kaki-kaki">Rantai/Kaki-kaki</option>
+                                    <option value="Elektrik/Komunikasi">Elektrik/Komunikasi</option>
+                                    <option value="Umum">Umum</option>
+                                </select>
+                            </div>
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Vendor</th>
+                                            <th>Spesialisasi</th>
+                                            <th>No. Telepon</th>
+                                            <th>Alamat</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableVendorBody">
+                                        </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -3915,6 +4036,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Aset yang Diperbaiki *</label>
+                            <input type="hidden" id="woAsetIdTemp" value="">
                             <select class="form-control" id="woAset" required onchange="tampilkanInfoAsetWO()"></select>
                             
                             <div id="woAsetInfoPanel" style="display: none; margin-top: 10px; padding: 12px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius); border-left: 4px solid var(--primary);">
@@ -3935,19 +4057,40 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="form-group" style="background: var(--gray-50); padding: 15px; border-radius: 6px; border: 1px solid var(--gray-200);">
+                        <label class="form-label">Tipe Pengerjaan (Alokasi) *</label>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="woPelaksana" value="internal" checked onchange="togglePelaksanaWO()"> 
+                                <strong>Internal</strong> <span style="font-size: 12px; color: var(--gray-500);">(Teknisi Satuan)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="woPelaksana" value="eksternal" onchange="togglePelaksanaWO()"> 
+                                <strong>Eksternal</strong> <span style="font-size: 12px; color: var(--gray-500);">(Vendor / Pihak Ketiga)</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Teknisi *</label>
+                        <div class="form-group" id="wrapperTeknisi">
+                            <label class="form-label">Pilih Teknisi *</label>
                             <select class="form-control" id="woTeknisi" required>
                                 <option value="">Pilih Teknisi</option>
                                 <option value="Sertu Joko">Sertu Joko</option>
-                                <option value="Sertu Budi">Sertu Bobi</option>
-                                <option value="Sertu Budi">Sertu Giban</option>
-                                <option value="Sertu Budi">Sertu Wowi</option>
-                                <option value="Sertu Budi">Sertu Wowo</option>
-                                <option value="Sertu Budi">Sertu Towo</option>
+                                <option value="Sertu Bobi">Sertu Bobi</option>
+                                <option value="Sertu Giban">Sertu Giban</option>
+                                <option value="Sertu Wowi">Sertu Wowi</option>
                             </select>
                         </div>
+                        
+                        <div class="form-group" id="wrapperVendor" style="display: none;">
+                            <label class="form-label" style="color: var(--primary);">Pilih Vendor / Rekanan *</label>
+                            <select class="form-control" id="woVendor">
+                                <option value="">Pilih Vendor</option>
+                                </select>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label">Prioritas *</label>
                             <select class="form-control" id="woPrioritas" required>
@@ -4056,18 +4199,28 @@
                             <option value="Regu">Regu</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Alamat Lengkap</label>
-                        <textarea class="form-control" id="lokasiAlamat" rows="3" placeholder="Alamat lengkap satuan"></textarea>
+                        <textarea class="form-control" id="lokasiAlamat" rows="2" placeholder="Ketik nama jalan/daerah atau pilih dari peta..." oninput="cariAlamat(this.value)"></textarea>
+                        
+                        <div id="hasilPencarianAlamat" style="display: none; position: absolute; z-index: 1050; background: white; border: 1px solid var(--gray-300); width: 100%; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 2px;">
+                            </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label" style="color: var(--primary);"><i class="fas fa-map-marker-alt"></i> Pilih Titik Lokasi di Peta</label>
+                        <div id="pickerMap" style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid var(--gray-300); z-index: 1;"></div>
+                        <small style="color: var(--gray-500);">*Klik pada peta untuk otomatis mengisi Latitude dan Longitude di bawah.</small>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Latitude</label>
-                            <input type="text" class="form-control" id="lokasiLat" placeholder="-6.123456">
+                            <input type="text" class="form-control" id="lokasiLat" placeholder="-6.2088" readonly>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Longitude</label>
-                            <input type="text" class="form-control" id="lokasiLng" placeholder="106.765432">
+                            <input type="text" class="form-control" id="lokasiLng" placeholder="106.8456" readonly>
                         </div>
                     </div>
                     <div class="form-group">
@@ -4244,6 +4397,47 @@
         </div>
     </div>
 
+    <div class="modal" id="modalVendor">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalVendorTitle"><i class="fas fa-store"></i> Tambah Vendor Baru</h3>
+                <button class="modal-close" onclick="closeModal('modalVendor')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formVendor">
+                    <input type="hidden" id="editVendorId">
+                    <div class="form-group">
+                        <label class="form-label">Nama Vendor / Rekanan *</label>
+                        <input type="text" class="form-control" id="vendorNama" required placeholder="Contoh: PT Pindad / Bengkel Sinar Motor">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Spesialisasi *</label>
+                        <select class="form-control" id="vendorSpesialisasi" required>
+                            <option value="">Pilih Spesialisasi</option>
+                            <option value="Mesin">Mesin</option>
+                            <option value="Optik/Sensor">Optik/Sensor</option>
+                            <option value="Rantai/Kaki-kaki">Rantai/Kaki-kaki</option>
+                            <option value="Elektrik/Komunikasi">Elektrik/Komunikasi</option>
+                            <option value="Umum">Umum</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor Telepon *</label>
+                        <input type="text" class="form-control" id="vendorTelepon" required placeholder="08123456789">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Alamat Lengkap</label>
+                        <textarea class="form-control" id="vendorAlamat" rows="3" placeholder="Alamat lengkap bengkel / perusahaan"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modalVendor')">Batal</button>
+                <button class="btn btn-primary" onclick="saveVendor()"><i class="fas fa-save"></i> Simpan Vendor</button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -4354,13 +4548,20 @@
                         <textarea class="form-control" id="woCatatan" rows="3" required placeholder="Contoh: Mengganti V-Belt yang putus, membersihkan filter udara, dan uji jalan statis..."></textarea>
                     </div>
 
-                    <div style="margin-top: 20px; border-top: 1px dashed var(--gray-300); padding-top: 15px;">
+                    <div class="form-row" style="margin-top: 15px;">
+                        <div class="form-group" style="width: 100%;">
+                            <label class="form-label" style="color: var(--primary);"><i class="fas fa-file-invoice-dollar"></i> Total Biaya / Tagihan Vendor (Rp)</label>
+                            <input type="number" class="form-control" id="woBiaya" placeholder="Contoh: 1500000 (Kosongkan jika dikerjakan Internal)" min="0">
+                            <small style="color: var(--gray-500);">*Wajib diisi jika perbaikan dilakukan oleh pihak ketiga (Vendor/Rekanan).</small>
+                        </div>
+                    </div>
+
+                    <div id="wrapperKomponenWO" style="margin-top: 20px; border-top: 1px dashed var(--gray-300); padding-top: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <label class="form-label" style="margin: 0; color: var(--primary);"><i class="fas fa-cogs"></i> Pemakaian Suku Cadang (Otomatis potong stok)</label>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="addKomponenRow()"><i class="fas fa-plus"></i> Tambah Part</button>
                         </div>
-                        <div id="woKomponenList">
-                            </div>
+                        <div id="woKomponenList"></div>
                         <p id="woKomponenKosong" style="font-size: 12px; color: var(--gray-500); font-style: italic;">Tidak ada komponen yang diganti.</p>
                     </div>
                 </form>
@@ -4458,7 +4659,7 @@
         // ============================================
         // Mapping Menu Berdasarkan Role
         const ROLE_PERMISSIONS = {
-            'Super Admin': ['dashboard', 'daftar-aset', 'mutasi-aset', 'maintenance', 'daftar-personil', 'mutasi-personil', 'jadwal-personil', 'komponen', 'amunisi', 'lokasi', 'laporan', 'audit', 'pengaturan'],
+            'Super Admin': ['dashboard', 'daftar-aset', 'mutasi-aset', 'maintenance', 'daftar-personil', 'mutasi-personil', 'jadwal-personil', 'komponen', 'amunisi', 'lokasi', 'laporan', 'audit', 'pengaturan', 'vendor'],
             
             'Danunit': ['dashboard', 'daftar-aset', 'mutasi-aset', 'maintenance', 'daftar-personil', 'jadwal-personil', 'amunisi'],
             
@@ -4482,6 +4683,7 @@
             users: [],
             auditLogs: [],
             config: {},
+            vendors: [],
             amunisi: [],         // Stok master di gudang (berdasarkan Lot)
             amunisiLoadout: [],  // Amunisi yang sedang standby di dalam Ranpur/Senjata
             amunisiHistory: []   // Riwayat keluar/masuk & laporan selongsong
@@ -4594,11 +4796,11 @@
                     centerLng = DB.locations[0].lng;
                 }
 
-                map = L.map('realMap').setView([centerLat, centerLng], zoom);
+                map = L.map('realMap').setView([-2.0, 118.0], 5);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                    maxZoom: 19
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                    attribution: 'Tiles © Esri — Source: Esri, DeLorme, NAVTEQ, TomTom, dsb'
                 }).addTo(map);
 
                 L.control.scale({ imperial: false, metric: true }).addTo(map);
@@ -4633,7 +4835,7 @@
                     const popupContent = `
                         <div style="min-width: 200px;">
                             <h4 style="margin: 0 0 8px; color: var(--primary); font-weight: 600;">${loc.nama}</h4>
-                            <div style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-code" style="width: 20px; color: var(--primary);"></i> ${loc.kode}</div>
+                            <div style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-flag" style="width: 20px; color: var(--primary);"></i> ${loc.kode}</div>
                             <div style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-cubes" style="width: 20px; color: var(--primary);"></i> Jumlah Aset: <strong>${displayAset}</strong></div>
                             <div style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-user" style="width: 20px; color: var(--primary);"></i> PJ: ${loc.pj}</div>
                             <div style="font-size: 12px;"><i class="fas fa-map-pin" style="width: 20px; color: var(--primary);"></i> ${loc.alamat || '-'}</div>
@@ -4670,18 +4872,18 @@
                 centerLng = DB.locations[0].lng;
             }
 
-            lokasiMap = L.map('lokasiMap').setView([centerLat, centerLng], zoom);
+            lokasiMap = L.map('lokasiMap').setView([-2.0, 118.0], 5);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                    attribution: 'Tiles © Esri — Source: Esri, DeLorme, NAVTEQ, TomTom, dsb'
             }).addTo(lokasiMap);
 
             DB.locations.forEach(loc => {
                 if (loc.lat && loc.lng) {
                     const customIcon = L.divIcon({
                         className: 'custom-marker',
-                        html: `<div><i class="fas fa-building"></i></div>`, // Pakai icon gedung
+                        html: `<div><i class="fas fa-map-marker-alt"></i></div>`,
                         iconSize: [36, 36],
                         iconAnchor: [18, 36],
                         popupAnchor: [0, -36]
@@ -4785,10 +4987,8 @@
                 alert('Informasi lokasi tidak ditemukan');
             }
         }
-
-        // ============================================
+     
         // INITIALIZATION
-        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
             setupEventListeners();
@@ -4854,7 +5054,7 @@
                 { id: 1, nama: 'MBT Leopard 2RI', kategori: 'ranpur', noInv: 'INV-2024-001', noSeri: 'SN-LEO-001', nopol: '1001-01', merk: 'KMW', tahun: 2020, tanggalPerolehan: '2020-06-15', nilai: 15000000000, anggaran: 'DIPA', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 1/Badak Ceta Cakti', pj: 'Lettu Kav. Ahmad', jamOperasi: 450, kilometer: 5000, foto: [] }, 
                 { id: 2, nama: 'Medium Tank Harimau', kategori: 'ranpur', noInv: 'INV-2024-002', noSeri: 'SN-HRM-001', nopol: '1301-13', merk: 'Pindad', tahun: 2023, tanggalPerolehan: '2023-03-20', nilai: 95000000000, anggaran: 'APBN', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 13/Satya Lembuswana', pj: 'Kapten Kav. Hendra', jamOperasi: 120, kilometer: 1500, foto: [] },
                 { id: 3, nama: 'Panser Badak 90mm', kategori: 'ranpur', noInv: 'INV-2024-003', noSeri: 'SN-BDK-001', nopol: '4005-03', merk: 'Pindad', tahun: 2022, tanggalPerolehan: '2022-11-01', nilai: 25000000000, anggaran: 'DIPA', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 7/Pragosa Satya', pj: 'Lettu Kav. Dimas', jamOperasi: 310, kilometer: 4200, foto: [] }, 
-                { id: 4, nama: 'Tank Scorpion 90', kategori: 'ranpur', noInv: 'INV-2024-004', noSeri: 'SN-SCP-001', nopol: '6012-06', merk: 'Alvis', tahun: 1996, tanggalPerolehan: '1996-08-10', nilai: 5000000000, anggaran: 'Hibah', kondisi: 'maintenance', status: 'dalam_perbaikan', lokasi: 'Yonkav 8/Nara Singa Wiratama', pj: 'Serka Kav. Yudi', jamOperasi: 2100, kilometer: 45000, foto: [] },
+                { id: 4, nama: 'Tank Scorpion 90', kategori: 'ranpur', noInv: 'INV-2024-004', noSeri: 'SN-SCP-001', nopol: '6012-06', merk: 'Alvis', tahun: 1996, tanggalPerolehan: '1996-08-10', nilai: 5000000000, anggaran: 'Hibah', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 8/Nara Singa Wiratama', pj: 'Serka Kav. Yudi', jamOperasi: 2100, kilometer: 45000, foto: [] },
                 { id: 5, nama: 'Panser Anoa 6x6 APC', kategori: 'ranpur', noInv: 'INV-2024-005', noSeri: 'SN-ANO-001', nopol: '7022-07', merk: 'Pindad', tahun: 2022, tanggalPerolehan: '2022-05-30', nilai: 8000000000, anggaran: 'DIPA', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 7/Pragosa Satya', pj: 'Lettu Kav. Ahmad', jamOperasi: 200, kilometer: 3000, foto: [] },
                 { id: 6, nama: 'Meriam Rheinmetall 120mm L/44', kategori: 'senjata', noInv: 'WPN-2024-001', noSeri: 'SN-RM-001', nopol: '-', merk: 'Rheinmetall', tahun: 2020, tanggalPerolehan: '2020-06-15', nilai: 4500000000, anggaran: 'DIPA', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 1/Badak Ceta Cakti', pj: 'Lettu Kav. Ahmad', jamOperasi: 0, kilometer: 0, foto: [] },
                 { id: 7, nama: 'Meriam Cockerill 3105 (105mm)', kategori: 'senjata', noInv: 'WPN-2024-002', noSeri: 'SN-CKR-001', nopol: '-', merk: 'Cockerill', tahun: 2023, tanggalPerolehan: '2023-03-20', nilai: 3800000000, anggaran: 'APBN', kondisi: 'baik', status: 'tersedia', lokasi: 'Yonkav 13/Satya Lembuswana', pj: 'Kapten Kav. Hendra', jamOperasi: 0, kilometer: 0, foto: [] },
@@ -4893,7 +5093,6 @@
             ];
 
             DB.mutations = [
-                { id: 1, number: 'MUT/2024/001', asetId: 1, aset: 'Tank Leopard - TN-01-01', dari: 'Kodim 0501', ke: 'Pusdikkav', tanggal: '2025-11-01', status: 'pending' }
             ];
 
             DB.mutasiPersonil = [
@@ -4903,7 +5102,11 @@
             ];
 
             DB.workOrders = [
-                { id: 1, number: 'WO/2024/001', asetId: 2, aset: 'Truck Dong Feng - TN-02-15', teknisi: 'Sertu Joko', tipe: 'preventive', prioritas: 'high', status: 'in_progress', tanggal: '2024-01-15' }
+            ];
+
+            DB.vendors = [
+                { id: 1, nama: 'PT Pindad (Persero)', spesialisasi: 'Umum', telepon: '022-7312073', alamat: 'Jl. Gatot Subroto No. 517, Bandung' },
+                { id: 2, nama: 'Bengkel Sinar Motor', spesialisasi: 'Mesin', telepon: '081299998888', alamat: 'Jl. Raya Bogor KM. 30' }
             ];
 
             // Komponen (Vehicle Parts)
@@ -5208,7 +5411,8 @@
                 'laporan': 'Laporan',
                 'audit': 'Audit Trail',
                 'pengaturan': 'Pengaturan',
-                'amunisi': 'Manajemen Amunisi & Handak' // <-- TAMBAHKAN INI
+                'amunisi': 'Manajemen Amunisi & Handak', // <-- TAMBAHKAN INI
+                'vendor': 'Master Data Vendor'
             };
             document.getElementById('pageTitle').textContent = titles[pageName] || pageName;
 
@@ -5231,6 +5435,7 @@
                 case 'audit': renderAudit(); break;
                 case 'pengaturan': renderPengaturan(); break;
                 case 'amunisi': renderAmunisi(); break; // <-- TAMBAHKAN INI
+                case 'vendor': renderVendor(); break;
             }
         }
 
@@ -5257,6 +5462,19 @@
                 select.style.display = 'block'; // Tampilkan kembali dropdown
                 select.value = ''; // Reset pilihan
                 document.getElementById('woAsetInfoPanel').style.display = 'none'; // Sembunyikan panel paten
+                // Load data vendor dari DB.vendors
+                const vendorSelect = document.getElementById('woVendor');
+                if (vendorSelect) {
+                    vendorSelect.innerHTML = '<option value="">Pilih Vendor</option>' + 
+                        DB.vendors.map(v => `<option value="${v.nama}">${v.nama} (${v.spesialisasi})</option>`).join('');
+                }
+                
+                // Reset radio button ke Internal setiap kali modal dibuka
+                const radioInternal = document.querySelector('input[name="woPelaksana"][value="internal"]');
+                if(radioInternal) {
+                    radioInternal.checked = true;
+                    togglePelaksanaWO();
+                }
             }
             if (modalId === 'modalMutasiPersonil') {
                 populatePersonilDropdown('mutasiPersonilId');
@@ -5281,18 +5499,30 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+            if (modalId === 'modalWO') {
+                document.getElementById('woAsetIdTemp').value = '';
+            }
         }
 
         function populateAssetDropdown(elementId) {
             const select = document.getElementById(elementId);
             if (select) {
+                // Filter aset: tidak boleh dalam perbaikan/mutasi, dan tidak punya WO aktif
+                const availableAssets = DB.assets.filter(a => {
+                    // Status yang dilarang (tidak bisa dipilih)
+                    const forbiddenStatus = ['dalam_perbaikan', 'proses_mutasi', 'maintenance'];
+                    if (forbiddenStatus.includes(a.status)) return false;
+                    
+                    // Cek apakah aset memiliki work order aktif (status selain completed/deleted/jadwal)
+                    const hasActiveWO = DB.workOrders.some(w => w.asetId === a.id && !['completed', 'deleted', 'jadwal'].includes(w.status));
+                    return !hasActiveWO;
+                });
+
                 select.innerHTML = '<option value="">Pilih Aset</option>' + 
-                    DB.assets.map(a => {
-                        // Kumpulkan info tambahan HANYA JIKA valid (tidak kosong & bukan '-')
+                    availableAssets.map(a => {
                         let extra = [];
                         if (a.nopol && a.nopol.trim() !== '' && a.nopol !== '-') extra.push(a.nopol);
                         if (a.noInv && a.noInv.trim() !== '' && a.noInv !== '-') extra.push(a.noInv);
-                        
                         let extraText = extra.length > 0 ? ` [${extra.join(' / ')}]` : '';
                         return `<option value="${a.id}">${a.nama}${extraText}</option>`;
                     }).join('');
@@ -5375,10 +5605,10 @@
             const supportTerpasang = DB.supportEquipment.length;
 
             // Count maintenance
-            const scheduled = DB.workOrders.filter(w => w.status === 'scheduled').length;
+            const scheduled = DB.workOrders.filter(w => w.status === 'jadwal').length;
             const inProgress = DB.workOrders.filter(w => w.status === 'in_progress').length;
             const today = new Date().toISOString().split('T')[0];
-            const overdue = DB.workOrders.filter(w => w.status !== 'completed' && w.tanggal && w.tanggal < today).length;
+            const overdue = DB.workOrders.filter(w => !['completed', 'deleted'].includes(w.status) && w.tanggal && w.tanggal < today).length;
 
             // Count mutations
             const mutasiAset = DB.mutations.filter(m => m.status === 'pending').length;
@@ -5470,12 +5700,35 @@
                 </div>`;
             }).join('');
 
-            // Maintenance alerts
+            // Maintenance alerts - menampilkan aset yang sedang dalam perbaikan (WO aktif)
             const alertsContainer = document.getElementById('maintenanceAlerts');
-            const assetsMaint = DB.assets.filter(a => a.kondisi === 'maintenance');
-            alertsContainer.innerHTML = assetsMaint.length === 0 ? 
-                '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-check-circle"></i></div><div class="empty-state-title">Tidak ada maintenance jatuh tempo</div></div>' :
-                assetsMaint.map(a => `<div class="activity-item"><div class="activity-icon" style="background: var(--danger); color: white;"><i class="fas fa-tools"></i></div><div class="activity-content"><div class="activity-text">${a.nama} - ${a.nopol}</div><div class="activity-time">${a.lokasi}</div></div></div>`).join('');
+            const activeWO = DB.workOrders.filter(w => ['in_progress', 'waiting_parts', 'pending_qc'].includes(w.status));
+
+            if (activeWO.length === 0) {
+                alertsContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-check-circle"></i></div><div class="empty-state-title">Tidak ada aset dalam perbaikan</div></div>';
+            } else {
+                alertsContainer.innerHTML = activeWO.map(wo => {
+                    const aset = DB.assets.find(a => a.id === wo.asetId);
+                    const namaAset = aset ? aset.nama : 'Aset tidak diketahui';
+                    const identitas = aset ? (aset.nopol || aset.noInv || '') : '';
+                    let statusLabel = '';
+                    if (wo.status === 'in_progress') statusLabel = 'Dikerjakan';
+                    else if (wo.status === 'waiting_parts') statusLabel = 'Menunggu Part';
+                    else if (wo.status === 'pending_qc') statusLabel = 'Pending QC';
+                    
+                    return `<div class="activity-item">
+                        <div class="activity-icon" style="background: var(--warning); color: white;">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">
+                                <strong>${namaAset}</strong> ${identitas ? '- ' + identitas : ''}
+                            </div>
+                            <div class="activity-time">WO: ${wo.number} (${statusLabel})</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
 
             // Recent activity
             document.getElementById('recentActivity').innerHTML = DB.auditLogs.slice(0, 5).map(log => {
@@ -5494,9 +5747,22 @@
                     initRealMap();
                 }
             }, 200);
-            if (typeof renderPreventiveAlerts === 'function') {
-                renderPreventiveAlerts();
+            const alertCards = getScheduleAlertCards();
+            const dashboardGrid = document.querySelector('#page-dashboard .dashboard-grid'); // asumsikan ada
+            // Atau buat container baru
+            let alertContainer = document.getElementById('dashboard-alert-cards');
+            if (!alertContainer) {
+                alertContainer = document.createElement('div');
+                alertContainer.id = 'dashboard-alert-cards';
+                alertContainer.style.display = 'grid';
+                alertContainer.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                alertContainer.style.gap = '20px';
+                alertContainer.style.marginBottom = '24px';
+                // Sisipkan setelah quick actions
+                const quickActions = document.querySelector('#page-dashboard .quick-actions');
+                quickActions.parentNode.insertBefore(alertContainer, quickActions.nextSibling);
             }
+            alertContainer.innerHTML = alertCards.preventiveHTML + alertCards.overdueHTML + alertCards.upcomingHTML;
         }
 
         // ============================================
@@ -5539,7 +5805,6 @@
             const total = filtered.length;
             const totalPages = Math.ceil(total / perPage);
             
-            // Jika halaman saat ini melebihi total halaman, sesuaikan
             if (currentPageAset > totalPages && totalPages > 0) {
                 currentPageAset = totalPages;
             } else if (totalPages === 0) {
@@ -5551,27 +5816,74 @@
             const pageData = filtered.slice(start, end);
             
             const tbody = document.getElementById('tableAsetBody');
-            tbody.innerHTML = pageData.length === 0 ? 
-                '<tr><td colspan="11"><div class="empty-state"><div class="empty-state-icon"><i class="fas fa-box"></i></div><div class="empty-state-title">Tidak ada aset</div></div></td></tr>' :
-                pageData.map((a, i) => `<tr>
-                    <td>${start + i + 1}</td>
-                    <td><button class="btn btn-secondary btn-sm" onclick="showQR(${a.id})"><i class="fas fa-qrcode"></i></button></td>
-                    <td><button class="btn btn-secondary btn-sm" onclick="viewFotoAset(${a.id})"><i class="fas fa-image"></i></button></td>
-                    <td><strong>${a.nama}</strong></td>
-                    <td><span class="badge badge-info">${getKategoriLabel(a.kategori)}</span></td>
-                    <td>${a.nopol || '-'}</td>
-                    <td>${getKondisiBadge(a.kondisi)}</td>
-                    <td>${getStatusBadge(a.kategori, a.status)}</td>
-                    <td>Rp ${formatNumber(a.nilai || 0)}</td>
-                    <td>${a.lokasi}</td>
-                    <td><div class="action-buttons">
-                        <button class="btn btn-secondary btn-sm" onclick="viewDetailAset(${a.id})" title="Detail"><i class="fas fa-eye"></i></button>
-                        <button class="btn btn-secondary btn-sm" onclick="editAset(${a.id})" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteAset(${a.id})" title="Hapus"><i class="fas fa-trash"></i></button>
-                    </div></td>
-                </tr>`).join('');
+            tbody.innerHTML = pageData.length === 0 
+                ? '<tr><td colspan="11"><div class="empty-state"><div class="empty-state-icon"><i class="fas fa-box"></i></div><div class="empty-state-title">Tidak ada aset</div></div></td></tr>'
+                : pageData.map((a, i) => {
+                    // Di dalam pageData.map((a, i) => { ... })
+                    const hasActiveWO = DB.workOrders.some(w => w.asetId === a.id && !['completed', 'deleted', 'jadwal'].includes(w.status));
+                    const hasSchedule = DB.workOrders.some(w => w.asetId === a.id && w.status === 'jadwal');
+                    const isStatusForbidden = ['dalam_perbaikan', 'proses_mutasi'].includes(a.status);
+                    const disableJadwal = hasActiveWO || isStatusForbidden || hasSchedule;
+                    // Tentukan tooltip untuk tombol jadwal
+                    let tooltipJadwal = '';
+                    if (hasSchedule) {
+                        tooltipJadwal = 'Sudah dijadwalkan';
+                    } else if (hasActiveWO) {
+                        tooltipJadwal = 'Aset sedang dalam perbaikan';
+                    } else if (isStatusForbidden) {
+                        tooltipJadwal = `Aset tidak dapat dijadwalkan (status: ${a.status.replace('_', ' ')})`;
+                    } else {
+                        tooltipJadwal = 'Buat Jadwal Perawatan';
+                    }
+
+                    // Cari jadwal untuk mendapatkan tanggal
+                    const scheduleWO = DB.workOrders.find(w => w.asetId === a.id && w.status === 'jadwal');
+                    const jadwalTanggal = scheduleWO ? scheduleWO.tanggal : '';
+
+                    // Bangun kolom status dengan badge + ikon kalender jika ada jadwal
+                    let statusHtml = getStatusBadge(a.kategori, a.status);
+                    if (hasSchedule) {
+                        statusHtml += ` <i class="fas fa-calendar-alt" title="Jadwal service: ${jadwalTanggal}" style="margin-left: 5px; color: var(--warning); cursor: help;"></i>`;
+                    }
+
+                    return `<tr>
+                        <td>${start + i + 1}</td>
+                        <td><button class="btn btn-secondary btn-sm" onclick="showQR(${a.id})"><i class="fas fa-qrcode"></i></button></td>
+                        <td><button class="btn btn-secondary btn-sm" onclick="viewFotoAset(${a.id})"><i class="fas fa-image"></i></button></td>
+                        <td><strong>${a.nama}</strong></td>
+                        <td><span class="badge badge-info">${getKategoriLabel(a.kategori)}</span></td>
+                        <td>${a.nopol || '-'}</td>
+                        <td>${getKondisiBadge(a.kondisi)}</td>
+                        <td class="td-status">${statusHtml}</td>
+                        <td>Rp ${formatNumber(a.nilai || 0)}</td>
+                        <td title="${getAlamatLengkap(a.lokasi)}">${a.lokasi}</td>
+                        <td><div class="action-buttons">
+                            <button class="btn btn-sm btn-secondary" onclick="viewDetailAset(${a.id})" title="Lihat Detail">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm ${disableJadwal ? 'btn-secondary' : 'btn-info'}" 
+                                onclick="${disableJadwal ? '' : 'jadwalkanPemeliharaan(' + a.id + ')'}" 
+                                ${disableJadwal ? 'disabled' : ''} 
+                                title="${tooltipJadwal}"
+                                style="${disableJadwal ? 'opacity:0.6; cursor:not-allowed;' : 'color: white;'}">
+                                <i class="fas fa-calendar-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="editAset(${a.id})" title="Edit data aset">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAset(${a.id})" title="Hapus aset">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div></td>
+                    </tr>`;
+                }).join('');
             
             renderPagination('paginationAset', total, perPage, currentPageAset);
+        }
+
+        function getAlamatLengkap(namaLokasi) {
+            const loc = DB.locations.find(l => l.nama === namaLokasi);
+            return loc && loc.alamat ? loc.alamat : 'Alamat tidak tersedia';
         }
 
         function getKategoriLabel(kategori) {
@@ -5585,6 +5897,9 @@
         }
 
         function getStatusBadge(kategori, status) {
+            // Paksa status menjadi huruf kecil semua agar selalu terbaca oleh sistem
+            const safeStatus = (status || '').toLowerCase();
+            
             const badges = {
                 'tersedia': 'success',
                 'digunakan': 'info',
@@ -5597,7 +5912,8 @@
                 'dalam_perbaikan': 'Dalam Perbaikan',
                 'proses_mutasi': 'Proses Mutasi'
             };
-            return `<span class="badge badge-${badges[status] || 'secondary'}">${labels[status] || status}</span>`;
+            
+            return `<span class="badge badge-${badges[safeStatus] || 'secondary'}">${labels[safeStatus] || status}</span>`;
         }
 
         function getFilteredAset() {
@@ -5720,15 +6036,23 @@
             // 1. Cari data aset
             const aset = DB.assets.find(a => a.id === id);
             if (!aset) {
-                alert('Error: Aset tidak ditemukan!');
+                showToast('Aset tidak ditemukan!', 'error');
                 return;
             }
 
-            // 2. Bersihkan modal lama jika kebetulan "nyangkut"
+            // 2. Validasi status: jika dalam perbaikan atau mutasi, tolak
+            const statusTerlarang = ['dalam_perbaikan', 'proses_mutasi'];
+            if (statusTerlarang.includes(aset.status)) {
+                let statusBaca = aset.status.replace('_', ' ');
+                showToast(`Aset sedang berstatus "${statusBaca}". Tidak dapat dihapus.`, 'warning');
+                return; // Hentikan proses
+            }
+
+            // 3. Bersihkan modal lama jika kebetulan "nyangkut"
             const oldModal = document.getElementById('superModalHapus');
             if (oldModal) oldModal.remove();
 
-            // 3. Bangun HTML Modal dengan CSS Inline (Dijamin kebal dari error template)
+            // 4. Bangun HTML Modal dengan CSS Inline (Dijamin kebal dari error template)
             const modalHTML = `
             <div id="superModalHapus" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999999; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(3px);">
                 <div style="background: var(--white, #2a3629); border-top: 5px solid var(--danger, #e53e3e); border-radius: 10px; width: 90%; max-width: 300px; padding: 22px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); animation: popIn 0.3s ease-out;">
@@ -5747,35 +6071,34 @@
             </div>
             `;
 
-            // 4. Tampilkan ke tengah layar dengan paksa
+            // 5. Tampilkan ke tengah layar
             document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-            // 5. Fungsi jika komandan klik "Batal"
+            // 6. Fungsi jika klik "Batal"
             document.getElementById('btnBatalHapus').onclick = function() {
-                document.getElementById('superModalHapus').remove(); // Langsung hancurkan modalnya
+                document.getElementById('superModalHapus').remove();
             };
 
-            // 6. Fungsi jika komandan klik "Ya"
+            // 7. Fungsi jika klik "Ya"
             document.getElementById('btnGasHapus').onclick = function() {
-                // Hancurkan modalnya dulu
                 document.getElementById('superModalHapus').remove();
 
                 // Eksekusi penghapusan data
                 DB.assets = DB.assets.filter(a => a.id !== id);
-                
+
                 // Catat aktivitas
                 const username = currentUser ? currentUser.username : 'System';
-                if(typeof addAuditLog === 'function') {
+                if (typeof addAuditLog === 'function') {
                     addAuditLog(username, 'DELETE', 'aset', `Menghapus aset: ${aset.nama}`);
                 }
-                
+
                 // Simpan & Segarkan Layar
-                if(typeof saveData === 'function') saveData();
-                if(typeof renderAset === 'function') renderAset();
-                if(typeof renderDashboard === 'function') renderDashboard();
-                
+                if (typeof saveData === 'function') saveData();
+                if (typeof renderAset === 'function') renderAset();
+                if (typeof renderDashboard === 'function') renderDashboard();
+
                 // Munculkan notifikasi sukses
-                if(typeof showToast === 'function') {
+                if (typeof showToast === 'function') {
                     showToast('Data aset berhasil dihapus!', 'success');
                 } else {
                     alert('Data aset berhasil dihapus!');
@@ -5783,15 +6106,19 @@
             };
         }
 
+        function hapusAset(id) {
+            deleteAset(id);
+        }
+
         function editAset(id) {
-            const a = DB.assets.find(x => x.id === id); // Di kodingan Anda mungkin pakai variabel 'a' atau 'aset'
+            const a = DB.assets.find(x => x.id === id);
             if (a) {
                 // ==========================================
-                // VALIDASI: KUNCI EDIT JIKA BUKAN TERSEDIA
+                // KUNCI EDIT JIKA ASET TIDAK TERSEDIA
                 // ==========================================
-                if (a.status !== 'tersedia' && a.status !== 'aktif') {
-                    showToast(`Ditolak! Kendaraan tidak bisa diedit karena berstatus: ${a.status.replace('_', ' ').toUpperCase()}`, 'error');
-                    return; 
+                if (a.status !== 'tersedia' && a.status !== 'Tersedia') {
+                    showToast(`Ditolak! Aset sedang berstatus: ${a.status.replace('_', ' ').toUpperCase()}`, 'warning');
+                    return; // Hentikan proses edit dan jangan buka form modalnya
                 }
             const pageTitle = document.getElementById('pageFormAsetTitle');
             if (pageTitle) pageTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Data Aset';
@@ -5820,7 +6147,10 @@
                 document.getElementById('asetLokasi').value = a.lokasi || '';
                 
                 updateStatusOptions();
-                setTimeout(() => { document.getElementById('asetStatus').value = a.status || ''; }, 50);
+                setTimeout(() => {
+                        // Paksa menjadi huruf kecil agar selalu cocok dengan opsi <select>
+                        document.getElementById('asetStatus').value = (a.status || '').toLowerCase();
+                    }, 50);
                 
                 asetFotoFiles = a.foto || [];
                 renderFotoPreview();
@@ -6573,7 +6903,8 @@
             // 1. Kelompokkan data ke dalam 3 status utama
             const pending = riwayatData.filter(m => m.status === 'pending');
             const approved = riwayatData.filter(m => m.status === 'approved');
-            const completed = riwayatData.filter(m => m.status === 'completed' || m.status === 'selesai' || m.status === 'rejected');
+            const completed = riwayatData.filter(m => m.status === 'completed' || m.status === 'selesai'); // <-- Rejected dihapus dari sini
+            const rejected = riwayatData.filter(m => m.status === 'rejected'); // <-- Tambahkan baris ini
 
             // 2. Fungsi perakit kartu (Card Builder)
             // 2. Fungsi perakit kartu (Card Builder)
@@ -6657,11 +6988,21 @@
 
                     <div class="kanban-col completed-col">
                         <div class="kanban-header">
-                            <span><i class="fas fa-flag-checkered"></i> SELESAI / REJECT</span>
+                            <span><i class="fas fa-flag-checkered"></i> SELESAI</span>
                             <span class="badge badge-success" style="font-size: 11px;">${completed.length}</span>
                         </div>
                         <div class="kanban-body">
                             ${completed.length > 0 ? completed.map(createCard).join('') : '<p style="text-align:center; color:var(--gray-500); margin-top:30px;"><i class="fas fa-box-open" style="font-size:24px; margin-bottom:10px; opacity:0.5;"></i><br>Kosong</p>'}
+                        </div>
+                    </div>
+
+                    <div class="kanban-col rejected-col">
+                        <div class="kanban-header">
+                            <span style="color: var(--danger);"><i class="fas fa-times-circle"></i> DITOLAK</span>
+                            <span class="badge badge-danger" style="font-size: 11px;">${rejected.length}</span>
+                        </div>
+                        <div class="kanban-body">
+                            ${rejected.length > 0 ? rejected.map(createCard).join('') : '<p style="text-align:center; color:var(--gray-500); margin-top:30px;"><i class="fas fa-ban" style="font-size:24px; margin-bottom:10px; opacity:0.5;"></i><br>Kosong</p>'}
                         </div>
                     </div>
 
@@ -6740,6 +7081,11 @@
             document.getElementById('btnGasCompleteMutasi').onclick = function() {
                 mutasi.status = 'completed';
                 document.getElementById('superModalCompleteMutasi').remove();
+
+                const asetTarget = DB.assets.find(a => a.id === mutasi.asetId);
+                if (asetTarget) {
+                    asetTarget.status = 'tersedia';
+                }
 
                 const username = currentUser ? currentUser.username : 'System';
                 if(typeof addAuditLog === 'function') addAuditLog(username, 'UPDATE', 'mutasi', `Selesaikan mutasi ${mutasi.nomor || 'No.'+id}. Aset telah tiba di ${tujuanMutasi}`);
@@ -6964,7 +7310,13 @@
                 const alasan = document.getElementById('inputAlasanReject').value.trim();
                 
                 if (alasan === "") {
-                    alert("Alasan penolakan wajib diisi!");
+                    // Ganti alert bawaan dengan toast notifikasi sistem
+                    if (typeof showToast === 'function') {
+                        showToast("Alasan penolakan wajib diisi!", "warning");
+                    } else {
+                        alert("Alasan penolakan wajib diisi!");
+                    }
+                    
                     document.getElementById('inputAlasanReject').focus();
                     return;
                 }
@@ -6973,6 +7325,10 @@
                 mutasi.catatan = alasan;
 
                 document.getElementById('superModalReject').remove();
+                const asetTarget = DB.assets.find(a => a.id === mutasi.asetId);
+                if (asetTarget) {
+                    asetTarget.status = 'tersedia';
+                }
 
                 const username = currentUser ? currentUser.username : 'System';
                 if(typeof addAuditLog === 'function') addAuditLog(username, 'UPDATE', 'mutasi', `Tolak mutasi ${mutasi.nomor || 'No.'+id}. Alasan: ${alasan}`);
@@ -6993,11 +7349,8 @@
             ];
         }
 
-        // =========================================================================
         // MODUL MAINTENANCE & WORK ORDER (CLEAN & OPTIMIZED VERSION)
-        // =========================================================================
 
-        // --- 1. SISTEM POPUP KONFIRMASI GLOBAL ---
         // --- 1. SISTEM POPUP KONFIRMASI GLOBAL ---
         function showConfirm(title, message, onConfirm, actionType = 'danger') {
             const dialog = document.getElementById('confirmDialog');
@@ -7058,117 +7411,164 @@
         }
 
         // --- 2. RENDER ANTARMUKA MAINTENANCE ---
+        // --- 2. RENDER ANTARMUKA MAINTENANCE ---
         function renderMaintenance() {
             const today = new Date().toISOString().split('T')[0];
-            const maintAssets = DB.assets.filter(a => a.kondisi === 'maintenance');
             const aktifWO = DB.workOrders.filter(w => w.status === 'in_progress' || w.status === 'waiting_parts');
             const selesaiWO = DB.workOrders.filter(w => w.status === 'completed');
-            const overdueWO = DB.workOrders.filter(w => w.status !== 'completed' && w.tanggal && w.tanggal < today);
+            const overdueWO = DB.workOrders.filter(w => !['completed', 'deleted'].includes(w.status) && w.tanggal && w.tanggal < today).length;
 
-            // Update Statistik
-            document.getElementById('maintJadwal').textContent = maintAssets.length; 
+            // ✅ Hanya jadwal manual (work order status 'jadwal') yang dihitung
+            const jadwalManualWOs = DB.workOrders.filter(w => w.status === 'jadwal');
+            document.getElementById('maintJadwal').textContent = jadwalManualWOs.length;
             document.getElementById('maintWOAktif').textContent = aktifWO.length;
             document.getElementById('maintSelesai').textContent = selesaiWO.length;
-            document.getElementById('maintOverdue').textContent = overdueWO.length;
+            document.getElementById('maintOverdue').textContent = overdueWO;
 
-            // Render Tab Jadwal (Aset Rusak Tanpa WO)
-            // Render Tab Jadwal (Aset Rusak Tanpa WO)
-            const activeWOsAssetIds = DB.workOrders.filter(w => w.status !== 'completed').map(w => w.asetId);
-            const scheduleAssets = DB.assets.filter(a => a.kondisi === 'maintenance' || a.kondisi === 'rusak_ringan' || a.kondisi === 'rusak_berat');
-            const needsWO = scheduleAssets.filter(a => !activeWOsAssetIds.includes(a.id));
+            // ==========================================
+            // RENDER TAB JADWAL (HANYA JADWAL MANUAL)
+            // ==========================================
+            let htmlJadwal = '';
 
-            document.getElementById('tableSchedule').innerHTML = needsWO.length === 0 ? 
-                '<tr><td colspan="6"><div class="empty-state"><p>Tidak ada aset yang menunggu jadwal perbaikan</p></div></td></tr>' :
-                needsWO.map(a => {
-                    // Logika penentuan prioritas dan jadwal berdasarkan kondisi
-                    let prioritasText = 'Rutin (Sesuai Interval)';
-                    let prioColor = 'info';
-                    let icon = 'fa-calendar-alt';
+            jadwalManualWOs.forEach(w => {
+                const today = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1); const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                let dateColor = '';
+                if (w.tanggal < today) dateColor = 'var(--danger)'; // merah
+                else if (w.tanggal === tomorrowStr) dateColor = 'var(--warning)'; // oranye
+                
+                const a = DB.assets.find(x => x.id === w.asetId);
+                if (a) {
+                    htmlJadwal += `<tr>
+                        <td>
+                            <strong style="color: var(--primary);">${a.nama}</strong><br>
+                            <span style="font-size: 11px; color: var(--gray-500);"><i class="fas fa-barcode"></i> ${a.noInv} &nbsp;|&nbsp; <i class="fas fa-car"></i> ${a.nopol || '-'}</span>
+                        </td>
+                        <td>${getKondisiBadge(a.kondisi)}</td>
+                        <td>
+                            <span style="color: ${dateColor || 'var(--success)'}; font-weight: 600; font-size: 13px;">
+                                <i class="fas fa-calendar-check"></i> Terjadwal: ${w.tanggal}
+                            </span><br>
+                            <small style="color: var(--gray-500);"><i class="fas fa-info-circle"></i> ${w.keluhan || 'Perawatan Rutin'}</small>
+                        </td>
+                        <td>${a.jamOperasi} Jam</td>
+                        <td><span class="badge badge-warning">Menunggu Eksekusi</span></td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="hapusJadwalManual(${w.id})" title="Batalkan Jadwal"><i class="fas fa-times"></i></button>
+                            <button class="btn btn-primary btn-sm" onclick="createWOForAsset(${a.id})" style="box-shadow: 0 2px 4px rgba(0,0,0,0.15); font-weight: bold;"><i class="fas fa-tools"></i> Eksekusi WO</button>
+                        </td>
+                    </tr>`;
+                }
+            });
+
+            if (htmlJadwal === '') {
+                htmlJadwal = '<tr><td colspan="6"><div class="empty-state"><p>Tidak ada jadwal perawatan</p></div></td></tr>';
+            }
+
+            document.getElementById('tableSchedule').innerHTML = htmlJadwal;
+
+            // ==========================================
+            // RENDER TAB WORK ORDER AKTIF
+            // ==========================================
+            // MENCEGAH STATUS JADWAL MASUK KE SINI
+            const aktifWOs = DB.workOrders.filter(w => !['completed', 'deleted', 'jadwal'].includes(w.status));
+
+            document.getElementById('tableWorkOrder').innerHTML = aktifWOs.length === 0 
+                ? '<tr><td colspan="6"><div class="empty-state"><p>Tidak ada Work Order aktif</p></div></td></tr>' 
+                : aktifWOs.map(w => {
+                    // Proteksi: jika status undefined, gunakan 'unknown'
+                    const safeStatus = w.status || 'unknown';
+                    let badgeStatus = 'secondary', labelStatus = safeStatus;
                     
-                    if(a.kondisi === 'rusak_berat') { 
-                        prioritasText = 'Darurat (Segera dieksekusi)'; 
-                        prioColor = 'danger'; 
-                        icon = 'fa-exclamation-triangle';
-                    } else if(a.kondisi === 'rusak_ringan') { 
-                        prioritasText = 'Menengah (Bulan Ini)'; 
-                        prioColor = 'warning'; 
-                        icon = 'fa-clock';
-                    }
-
-                    return `<tr>
-                    <td>
-                        <strong style="color: var(--primary);">${a.nama}</strong><br>
-                        <span style="font-size: 11px; color: var(--gray-500);"><i class="fas fa-barcode"></i> ${a.noInv} &nbsp;|&nbsp; <i class="fas fa-car"></i> ${a.nopol || '-'}</span>
-                    </td>
-                    <td>${getKondisiBadge(a.kondisi)}</td>
-                    <td><span style="color: var(--${prioColor}); font-weight: 600; font-size: 13px;"><i class="fas ${icon}"></i> ${prioritasText}</span></td>
-                    <td>${a.jamOperasi} Jam</td>
-                    <td><span class="badge badge-danger" style="background: rgba(229, 62, 62, 0.1); color: var(--danger);">Perlu WO</span></td>
-                    <td><button class="btn btn-primary btn-sm" onclick="createWOForAsset(${a.id})" style="box-shadow: 0 2px 4px rgba(0,0,0,0.15); font-weight: bold;"><i class="fas fa-tools"></i> Proses ke WO</button></td>
-                </tr>`}).join('');
-
-            
-            // Render Tab Work Order (Hanya Tampilkan yang Belum Selesai)
-            const aktifWOs = DB.workOrders.filter(w => !['completed', 'deleted'].includes(w.status));
-            document.getElementById('tableWorkOrder').innerHTML = aktifWOs.length === 0 ?
-                '<tr><td colspan="6"><div class="empty-state"><p>Tidak ada Work Order aktif</p></div></td></tr>' :
-                aktifWOs.map(w => {
-                    let badgeStatus = 'secondary', labelStatus = w.status;
-                    if(w.status === 'in_progress') { badgeStatus = 'info'; labelStatus = 'Dikerjakan'; }
-                    else if(w.status === 'waiting_parts') { badgeStatus = 'warning'; labelStatus = 'Menunggu Part'; }
-                    else if(w.status === 'pending_qc') { badgeStatus = 'primary'; labelStatus = 'Pending QC'; }
+                    if (safeStatus === 'in_progress') { badgeStatus = 'info'; labelStatus = 'Dikerjakan'; }
+                    else if (safeStatus === 'waiting_parts') { badgeStatus = 'warning'; labelStatus = 'Menunggu Part'; }
+                    else if (safeStatus === 'pending_qc') { badgeStatus = 'primary'; labelStatus = 'Pending QC'; }
+                    else if (safeStatus === 'di_vendor') { badgeStatus = 'dark'; labelStatus = 'Di Vendor'; } // <-- TAMBAHAN STATUS VENDOR
 
                     const prioBadge = w.prioritas === 'critical' ? 'danger' : (w.prioritas === 'high' ? 'warning' : 'info');
-                    
+
                     let btnHtml = `<button class="btn btn-secondary btn-sm" onclick="viewWO(${w.id})" title="Detail WO"><i class="fas fa-eye"></i></button>`;
-                    if (w.status === 'in_progress' || w.status === 'waiting_parts') {
-                        btnHtml += `<button class="btn btn-${w.status === 'waiting_parts' ? 'info' : 'warning'} btn-sm" onclick="toggleWaitingParts(${w.id})" title="${w.status === 'waiting_parts' ? 'Lanjutkan Perbaikan' : 'Tandai Menunggu Part'}"><i class="fas fa-${w.status === 'waiting_parts' ? 'play' : 'box-open'}"></i></button>`;
+                    
+                    // --- PERUBAHAN LOGIKA TOMBOL UNTUK VENDOR ---
+                    if (w.status === 'in_progress' || w.status === 'waiting_parts' || w.status === 'di_vendor') {
+                        
+                        // Jika INTERNAL, tampilkan tombol Menunggu Part
+                        if (w.pelaksana !== 'eksternal' && w.status !== 'di_vendor') {
+                            btnHtml += `<button class="btn btn-${w.status === 'waiting_parts' ? 'info' : 'warning'} btn-sm" onclick="toggleWaitingParts(${w.id})" title="${w.status === 'waiting_parts' ? 'Lanjutkan Perbaikan' : 'Tandai Menunggu Part'}"><i class="fas fa-${w.status === 'waiting_parts' ? 'play' : 'box-open'}"></i></button>`;
+                        } else {
+                            // Jika EKSTERNAL/VENDOR, ganti dengan Badge Info
+                            btnHtml += `<span class="badge badge-secondary" style="margin: 0 5px;" title="Pengerjaan & Part oleh Vendor"><i class="fas fa-store"></i> Vendor</span>`;
+                        }
+
+                        // Tombol Selesaikan tetap ada untuk Internal & Vendor
                         btnHtml += `<button class="btn btn-success btn-sm" onclick="openSelesaikanWO(${w.id})" title="Buat Laporan & Selesaikan"><i class="fas fa-clipboard-check"></i></button>`;
+                        
                     } else if (w.status === 'pending_qc') {
                         btnHtml += `<button class="btn btn-primary btn-sm" onclick="approveQC(${w.id})" title="Verifikasi Perbaikan"><i class="fas fa-check-double"></i> Verifikasi</button>`;
                     }
+                    
                     btnHtml += `<button class="btn btn-danger btn-sm" onclick="deleteWO(${w.id})" title="Batalkan WO"><i class="fas fa-times"></i></button>`;
+                    let finalBadgeStatus = badgeStatus === 'dark' ? 'background-color: #343a40; color: white;' : '';
 
                     return `<tr>
-                        <td><strong>${w.number}</strong></td>
-                        <td>${w.aset}</td>
-                        <td>${w.teknisi}</td>
-                        <td><span class="badge badge-${prioBadge}">${w.prioritas}</span></td>
-                        <td><span class="badge badge-${badgeStatus}">${labelStatus.toUpperCase()}</span></td>
+                        <td><strong>${w.number || '-'}</strong></td>
+                        <td>${w.aset || (w.namaAset ? w.namaAset : 'Undefined')}</td>
+                        <td>${w.teknisi || '-'}</td>
+                        <td><span class="badge badge-${prioBadge}">${w.prioritas || '-'}</span></td>
+                        <td><span class="badge badge-${badgeStatus}" style="${finalBadgeStatus}">${labelStatus.toUpperCase()}</span></td>
                         <td><div class="action-buttons">${btnHtml}</div></td>
                     </tr>`;
                 }).join('');
 
-            // Render Tab Riwayat (Completed dan Deleted)
+            // RENDER TAB RIWAYAT
             const riwayatWOs = DB.workOrders.filter(w => ['completed', 'deleted'].includes(w.status)).sort((a,b) => b.id - a.id);
             const tbodyHistory = document.getElementById('tableHistoryWO');
             if (tbodyHistory) {
-                tbodyHistory.innerHTML = riwayatWOs.length === 0 ?
-                    '<tr><td colspan="6"><div class="empty-state"><p>Belum ada riwayat aktivitas WO</p></div></td></tr>' :
-                    riwayatWOs.map(w => {
-                        const isDeleted = w.status === 'deleted';
-                        // Badge untuk Riwayat
-                        const badgeStatus = isDeleted ? '<span class="badge badge-danger">DIBATALKAN</span>' : '<span class="badge badge-success">SELESAI</span>';
-                        
-                        // Cek Part yang Dipakai
-                        let parts = '';
-                        if(!isDeleted && w.usedParts && w.usedParts.length > 0) {
-                            parts = `<br><small style="color:var(--primary);"><i class="fas fa-cogs"></i> Parts: ${w.usedParts.map(p=>p.nama).join(', ')}</small>`;
-                        }
-                        
-                        let catatan = w.catatan ? w.catatan : '-';
-                        let rowStyle = isDeleted ? 'opacity: 0.8; background-color: var(--gray-50);' : '';
-                        
-                        return `<tr style="${rowStyle}">
-                            <td><strong>${w.number}</strong></td>
-                            <td>${w.aset}</td>
-                            <td>${badgeStatus}</td>
-                            <td>${w.tanggalSelesai || w.tanggal || '-'}</td>
-                            <td>${w.teknisi}</td>
-                            <td><div style="max-width:350px; white-space:normal; font-size: 13px;">${catatan} ${parts}</div></td>
-                        </tr>`;
-                    }).join('');
+                tbodyHistory.innerHTML = riwayatWOs.length === 0 ? '<tr><td colspan="6"><div class="empty-state"><p>Belum ada riwayat aktivitas WO</p></div></td></tr>' : riwayatWOs.map(w => {
+                    const isDeleted = w.status === 'deleted';
+                    const badgeStatus = isDeleted ? '<span class="badge badge-danger">DIBATALKAN</span>' : '<span class="badge badge-success">SELESAI</span>';
+                    let parts = '';
+                    if(!isDeleted && w.usedParts && w.usedParts.length > 0) parts = `<br><small style="color:var(--primary);"><i class="fas fa-cogs"></i> Parts: ${w.usedParts.map(p=>p.nama).join(', ')}</small>`;
+                    let rowStyle = isDeleted ? 'opacity: 0.8; background-color: var(--gray-50);' : '';
+
+                    return `<tr style="${rowStyle}">
+                        <td><strong>${w.number}</strong></td>
+                        <td>${w.aset || (w.namaAset ? w.namaAset : 'Undefined')}</td>
+                        <td>${badgeStatus}</td>
+                        <td>${w.tanggalSelesai || w.tanggal || '-'}</td>
+                        <td>${w.teknisi}</td>
+                        <td><div style="max-width:350px; white-space:normal; font-size: 13px;">${w.catatan || '-'} ${parts}</div></td>
+                    </tr>`;
+                }).join('');
             }
+            console.log(overdueWO)
+        }
+
+        // FUNGSI HELPER UNTUK MENGHAPUS JADWAL MANUAL
+        function hapusJadwalManual(id) {
+            const wo = DB.workOrders.find(w => w.id === id);
+            if (!wo) return;
+
+            showConfirm('Batalkan Jadwal', 'Apakah Anda yakin ingin membatalkan jadwal perawatan ini?', () => {
+                
+                // KEMBALIKAN STATUS ASET KE SEMULA
+                const aset = DB.assets.find(a => a.id === wo.asetId);
+                if (aset) {
+                    aset.status = 'tersedia';
+                    aset.kondisi = wo.kondisiAwal || 'baik'; // Gunakan ingatan kondisi awal, jika kosong anggap 'baik'
+                }
+
+                // Hapus dari database jadwal
+                DB.workOrders = DB.workOrders.filter(w => w.id !== id);
+                saveData();
+                showToast('Jadwal dibatalkan, Aset kembali Tersedia', 'success');
+                
+                // Refresh semua UI
+                if (typeof renderAset === 'function') renderAset();
+                if (typeof renderDashboard === 'function') renderDashboard();
+                renderMaintenance();
+                switchMaintTab('schedule');
+            });
         }
 
         // --- 3. LOGIKA AKSI WORK ORDER ---
@@ -7211,11 +7611,14 @@
             showConfirm('Proses ke Work Order', `Buat dokumen Work Order untuk <strong>${namaAset}</strong>?`, () => {
                 openModal('modalWO');
                 setTimeout(() => {
+                    // Set hidden input
+                    document.getElementById('woAsetIdTemp').value = asetId;
+                    
                     const select = document.getElementById('woAset');
                     if(select) {
                         select.value = asetId;
-                        select.style.display = 'none'; // Sembunyikan dropdown agar tidak bisa diubah
-                        tampilkanInfoAsetWO(asetId); // Tampilkan panel info paten
+                        select.style.display = 'none'; // Sembunyikan dropdown
+                        tampilkanInfoAsetWO(asetId);
                     }
                 }, 100);
             }, 'info');
@@ -7224,49 +7627,108 @@
         // Penyatuan Fungsi saveWO
         function saveWO(event) {
             if (event) event.preventDefault();
-            const asetId = document.getElementById('woAset').value;
+            
+            // Ambil dari dropdown, jika kosong coba dari hidden
+            let asetId = document.getElementById('woAset').value;
+            if (!asetId) {
+                asetId = document.getElementById('woAsetIdTemp').value;
+            }
+
+            // --- PERBAIKAN: Pindahkan pencarian 'asset' ke atas ---
+            const asset = DB.assets.find(a => a.id == asetId);
+            if (!asset) return; // Hentikan jika aset tidak ditemukan
+
+            if (asset.status === 'proses_mutasi') {
+                showToast('Ditolak! Kendaraan tidak bisa di-maintenance karena sedang Proses Mutasi.', 'error');
+                return;
+            }
+            // --------------------------------------------------------
+
+            const existingJadwal = DB.workOrders.find(w => w.asetId == asetId && w.status === 'jadwal');
+            
+            // Sekarang memanggil asset.status sudah aman karena 'asset' sudah didefinisikan di atas
+            let statusAwal = asset.status; // default
+            if (existingJadwal) {
+                statusAwal = existingJadwal.statusAwal || asset.status;
+            }
+            
             const tipe = document.getElementById('woTipe').value;
-            const teknisi = document.getElementById('woTeknisi').value;
             const prioritas = document.getElementById('woPrioritas').value;
 
-            if (!asetId || !tipe || !teknisi || !prioritas) { 
+            // --- TAMBAHAN UNTUK VENDOR / PELAKSANA ---
+            // Ambil nilai radio button pelaksana (Internal / Eksternal)
+            const pelaksanaElement = document.querySelector('input[name="woPelaksana"]:checked');
+            const pelaksana = pelaksanaElement ? pelaksanaElement.value : 'internal';
+            const teknisi = document.getElementById('woTeknisi').value;
+            const vendor = document.getElementById('woVendor').value;
+
+            // Validasi Field berdasarkan Pelaksana
+            if (pelaksana === 'internal' && !teknisi) {
+                showToast('Silakan pilih Teknisi!', 'error'); 
+                return;
+            }
+            if (pelaksana === 'eksternal' && !vendor) {
+                showToast('Silakan pilih Vendor!', 'error'); 
+                return;
+            }
+
+            // Cek field wajib yang umum
+            if (!asetId || !tipe || !prioritas) { 
                 showToast('Field wajib harus diisi', 'error'); 
                 return; 
             }
+            // -----------------------------------------
 
-            const asset = DB.assets.find(a => a.id == asetId);
-            if (!asset) return;
-            if (asset.status === 'proses_mutasi') {
-            showToast('Ditolak! Kendaraan tidak bisa di-maintenance karena sedang Proses Mutasi.', 'error');
-            return;
-            }
+            // Hapus jadwal lama jika ada
+            DB.workOrders = DB.workOrders.filter(w => !(w.asetId == asetId && w.status === 'jadwal'));
 
-            // Otomatis ubah kondisi aset menjadi maintenance
-            asset.kondisi = 'maintenance';
+            // Status aset otomatis menjadi dalam_perbaikan, baik internal maupun eksternal
+            asset.status = 'dalam_perbaikan';
+
             const newId = DB.workOrders.length > 0 ? Math.max(...DB.workOrders.map(w => w.id)) + 1 : 1;
             const nomorWO = `WO/2024/${String(newId).padStart(3, '0')}`;
 
+            // --- PENENTUAN STATUS WO & NAMA PELAKSANA ---
+            let statusWO = 'in_progress';
+            let assignedTo = teknisi;
+
+            if (pelaksana === 'eksternal') {
+                statusWO = 'di_vendor'; // Status khusus jika masuk ke bengkel luar
+                assignedTo = vendor + " (Vendor)"; // Label khusus agar jelas di tabel
+            }
+            // --------------------------------------------
+
             DB.workOrders.unshift({
-                id: newId, 
-                number: nomorWO, 
+                id: newId,
+                number: nomorWO,
                 asetId: parseInt(asetId),
-                aset: `${asset.nama} - ${asset.nopol || ''}`, 
-                teknisi, 
-                tipe, 
+                aset: `${asset.nama} - ${asset.nopol || ''}`,
+                teknisi: assignedTo, // Menyimpan teknisi internal atau nama vendor
+                tipe,
                 prioritas,
-                status: 'in_progress', 
-                tanggal: new Date().toISOString().split('T')[0]
+                status: statusWO,
+                tanggal: new Date().toISOString().split('T')[0],
+                statusAwal: statusAwal,      // <-- penting untuk rollback / penyelesaian
+                kondisiAwal: asset.kondisi,  
+                pelaksana: pelaksana         // <-- 'internal' atau 'eksternal'
             });
 
-            const username = currentUser ? currentUser.username : 'System';
-            if(typeof addAuditLog === 'function') addAuditLog(username, 'CREATE', 'maintenance', `Buat WO: ${nomorWO}`);
+            const username = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.username : 'System';
+            if (typeof addAuditLog === 'function') addAuditLog(username, 'CREATE', 'maintenance', `Buat Work Order: ${nomorWO} (Pelaksana: ${pelaksana})`);
+
+            showToast('Work Order berhasil dibuat', 'success');
+            saveData();
+            closeModal('modalWO');
             
-            showToast('Work Order dibuat', 'success');
-            saveData(); 
-            closeModal('modalWO'); 
-            renderMaintenance(); 
-            renderDashboard(); 
+            // Reset hidden
+            const hiddenIdTemp = document.getElementById('woAsetIdTemp');
+            if (hiddenIdTemp) hiddenIdTemp.value = '';
+            
+            // Refresh semua tampilan terkait
+            renderDashboard();
             renderAset();
+            switchMaintTab('workorder');
+            renderMaintenance();
         }
 
         function viewWO(id) {
@@ -7306,68 +7768,34 @@
             if (!w) return;
             const nomor = w.number;
             
-            // Bersihkan modal lama jika ada
-            const oldModal = document.getElementById('superModalHapusWO');
-            if (oldModal) oldModal.remove();
-
-            // Buat Pop-Up Modal Custom untuk Alasan Penghapusan
-            const modalHTML = `
-            <div id="superModalHapusWO" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999999; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(3px);">
-                <div style="background: var(--white); border-top: 5px solid var(--danger); border-radius: 10px; width: 90%; max-width: 450px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <i class="fas fa-trash-alt" style="font-size: 45px; color: var(--danger); margin-bottom: 10px;"></i>
-                        <h3 style="color: var(--text-main); margin: 0; font-size: 20px;">Pembatalan / Hapus WO</h3>
-                    </div>
-                    <p style="text-align: center; color: var(--text-main); margin-bottom: 20px; font-size: 14px;">
-                        Anda akan membatalkan Work Order:<br><strong style="font-size: 18px; color: var(--danger);">${nomor}</strong>
-                    </p>
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; color: var(--text-main); margin-bottom: 8px; font-weight: bold; font-size: 13px;">Alasan Pembatalan *</label>
-                        <textarea id="inputAlasanHapusWO" rows="3" placeholder="Contoh: Kesalahan input, perintah dibatalkan, dll..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--gray-300); background: var(--gray-50); color: var(--gray-800); font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 12px;">
-                        <button id="btnBatalHapusWO" style="padding: 10px 20px; background: transparent; color: var(--text-main); border: 1px solid var(--gray-300); border-radius: 6px; cursor: pointer; font-weight: bold;">Batal</button>
-                        <button id="btnGasHapusWO" style="padding: 10px 20px; background: var(--danger); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;"><i class="fas fa-trash"></i> Batalkan WO</button>
-                    </div>
-                </div>
-            </div>`;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            document.getElementById('inputAlasanHapusWO').focus();
-
-            // Fungsi tombol Batal
-            document.getElementById('btnBatalHapusWO').onclick = function() {
-                document.getElementById('superModalHapusWO').remove();
-            };
-
-            // Fungsi eksekusi tombol Hapus
-            document.getElementById('btnGasHapusWO').onclick = function() {
-                const alasan = document.getElementById('inputAlasanHapusWO').value.trim();
-                if (alasan === "") {
-                    alert("Alasan pembatalan/penghapusan wajib diisi untuk log audit!");
-                    document.getElementById('inputAlasanHapusWO').focus();
-                    return;
-                }
-
-                // Jangan hapus datanya, tapi ubah statusnya jadi 'deleted' untuk masuk ke Riwayat
+            showConfirm('Batalkan Work Order', `Apakah Anda yakin ingin membatalkan WO <strong>${w.number}</strong>?`, () => {
+                // Ubah status WO menjadi 'deleted'
                 w.status = 'deleted';
-                w.catatan = `[DIBATALKAN] Alasan: ${alasan}`;
+                w.catatan = 'Dibatalkan oleh user';
                 w.tanggalSelesai = new Date().toISOString().split('T')[0];
                 
-                // Bebaskan aset dari status maintenance (ubah kembali jadi rusak_ringan)
-                const asset = DB.assets.find(a => a.id == w.asetId);
-                if(asset && asset.kondisi === 'maintenance') {
-                    asset.kondisi = 'rusak_ringan'; 
+                // Kembalikan status aset ke nilai awal
+                const aset = DB.assets.find(a => a.id === w.asetId);
+                if (aset) {
+                    // Gunakan statusAwal jika ada, fallback ke 'tersedia'
+                    aset.status = w.statusAwal || 'tersedia';
+                    // Kembalikan kondisi ke kondisi awal (jika disimpan)
+                    aset.kondisi = w.kondisiAwal || aset.kondisi;
                 }
 
-                document.getElementById('superModalHapusWO').remove();
-
-                const username = currentUser ? currentUser.username : 'System';
-                if(typeof addAuditLog === 'function') addAuditLog(username, 'DELETE', 'maintenance', `Batalkan WO: ${nomor}`);
+                // Catat audit log
+                if (typeof addAuditLog === 'function') {
+                    addAuditLog(currentUser ? currentUser.username : 'System', 'DELETE', 'maintenance', `Batalkan WO: ${w.number}`);
+                }
                 
-                showToast('Work Order dibatalkan dan dipindah ke Riwayat', 'success');
-                saveData(); renderMaintenance(); renderDashboard(); renderAset();
-            };
+                saveData();
+                showToast('Work Order dibatalkan', 'success');
+                
+                // Refresh tampilan
+                renderMaintenance();
+                renderDashboard();
+                renderAset();
+            }, 'danger'); // Tombol konfirmasi berwarna merah
         }
 
         // --- 4. LOGIKA PENYELESAIAN & QC (SERVICE REPORT) ---
@@ -7382,8 +7810,28 @@
                 document.getElementById('woBiaya').value = '';
                 document.getElementById('woKomponenList').innerHTML = '';
                 document.getElementById('woKomponenKosong').style.display = 'block';
-                openModal('modalSelesaikanWO');
 
+                // ==========================================
+                // LOGIKA INTERNAL VS VENDOR (EKSTERNAL)
+                // ==========================================
+                const wrapperKomponen = document.getElementById('wrapperKomponenWO');
+                const inputBiaya = document.getElementById('woBiaya');
+
+                if (w.pelaksana === 'eksternal') {
+                    // Sembunyikan pemakaian sparepart gudang
+                    if (wrapperKomponen) wrapperKomponen.style.display = 'none';
+                    // Wajibkan input tagihan vendor
+                    inputBiaya.setAttribute('required', 'true');
+                    inputBiaya.parentElement.parentElement.style.display = 'block'; 
+                } else {
+                    // Tampilkan pemakaian sparepart gudang
+                    if (wrapperKomponen) wrapperKomponen.style.display = 'block';
+                    // Biaya tidak wajib untuk teknisi internal
+                    inputBiaya.removeAttribute('required');
+                }
+
+                openModal('modalSelesaikanWO');
+                
                 // ==========================================
                 // LOGIKA MEMUNCULKAN CHECKLIST SOP
                 // ==========================================
@@ -7391,26 +7839,50 @@
                 const checklistItems = document.getElementById('woChecklistItems');
                 const checklistCategory = document.getElementById('woChecklistCategory');
 
-                // PERBAIKAN: Kita cari dulu data Aset-nya berdasarkan Work Order ini!
                 const aset = DB.assets.find(a => a.id == w.asetId);
-
+                
                 if (checklistContainer && aset) {
                     const kategori = aset.kategori ? aset.kategori.toLowerCase() : 'default';
                     const sops = SOP_INSPEKSI[kategori] || SOP_INSPEKSI['default'];
-                    
+
                     checklistCategory.innerText = `(${kategori.toUpperCase()})`;
-                    
-                    // Gambar checkbox-nya
+
                     checklistItems.innerHTML = sops.map((sop, idx) => `
                         <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; font-weight: normal; cursor: pointer; margin: 0;">
                             <input type="checkbox" class="wo-sop-checkbox" value="${sop}" style="margin-top: 3px;">
                             <span style="line-height: 1.4;">${sop}</span>
                         </label>
                     `).join('');
-                    
+
                     checklistContainer.style.display = 'block';
                 }
             }, 'success');
+        }
+
+        // Fungsi untuk memunculkan/menyembunyikan Dropdown Teknisi vs Vendor
+        function togglePelaksanaWO() {
+            const pelaksana = document.querySelector('input[name="woPelaksana"]:checked').value;
+            const wrapperTeknisi = document.getElementById('wrapperTeknisi');
+            const wrapperVendor = document.getElementById('wrapperVendor');
+            
+            const inputTeknisi = document.getElementById('woTeknisi');
+            const inputVendor = document.getElementById('woVendor');
+
+            if (pelaksana === 'eksternal') {
+                wrapperTeknisi.style.display = 'none';
+                wrapperVendor.style.display = 'block';
+                
+                // Wajibkan pilih vendor, cabut kewajiban teknisi
+                inputTeknisi.removeAttribute('required');
+                inputVendor.setAttribute('required', 'required');
+            } else {
+                wrapperTeknisi.style.display = 'block';
+                wrapperVendor.style.display = 'none';
+                
+                // Wajibkan pilih teknisi, cabut kewajiban vendor
+                inputVendor.removeAttribute('required');
+                inputTeknisi.setAttribute('required', 'required');
+            }
         }
 
         function addKomponenRow() {
@@ -7431,82 +7903,111 @@
             if(event) event.preventDefault();
             const id = document.getElementById('selesaikanWOId').value;
             const tgl = document.getElementById('woTanggalSelesai').value;
-            const catatanLaporan = document.getElementById('woCatatan').value; 
-            
+            const catatanLaporan = document.getElementById('woCatatan').value;
+            const biaya = document.getElementById('woBiaya').value;
+
+            const w = DB.workOrders.find(x => x.id == id);
+            if(!w) return;
+
             if(!tgl || !catatanLaporan) {
-                showToast('Tanggal dan Diagnosa wajib diisi!', 'warning');
-                return;
+                showToast('Tanggal dan Diagnosa wajib diisi!', 'warning'); return;
             }
-            
+
+            // Validasi tambahan jika Vendor
+            if (w.pelaksana === 'eksternal' && !biaya) {
+                showToast('Total Biaya Eksternal dari Vendor wajib diisi!', 'error'); return;
+            }
+
             let usedParts = [], stokAman = true;
-            document.querySelectorAll('.wo-komponen-row').forEach(row => {
-                const partId = row.querySelector('.part-select').value,
-                    qty = parseInt(row.querySelector('.part-qty').value);
-                if(partId && qty > 0) {
-                    const comp = DB.components.find(c => c.id == partId);
-                    if(comp) {
-                        if(comp.stok < qty) {
-                            showToast(`Stok ${comp.nama} tidak cukup!`, 'error');
-                            stokAman = false;
-                        } else {
-                            usedParts.push({ id: comp.id, nama: comp.nama, qty: qty });
+
+            // ==========================================
+            // POTONG STOK GUDANG (HANYA JIKA INTERNAL)
+            // ==========================================
+            if (w.pelaksana !== 'eksternal') {
+                document.querySelectorAll('.wo-komponen-row').forEach(row => {
+                    const partId = row.querySelector('.part-select').value;
+                    const qty = parseInt(row.querySelector('.part-qty').value);
+                    
+                    if(partId && qty > 0) {
+                        const comp = DB.components.find(c => c.id == partId);
+                        if(comp) {
+                            if(comp.stok < qty) {
+                                showToast(`Stok ${comp.nama} tidak cukup!`, 'error'); 
+                                stokAman = false;
+                            } else {
+                                usedParts.push({ id: comp.id, nama: comp.nama, qty: qty });
+                            }
                         }
                     }
-                }
-            });
-            
-            if(!stokAman) return;
-            
-            // Potong Stok
-            usedParts.forEach(up => {
-                const comp = DB.components.find(c => c.id == up.id);
-                if(comp) comp.stok -= up.qty;
-            });
+                });
 
-            // PERBAIKAN: Ambil nilai SOP Checklist yang dicentang
+                if(!stokAman) return; // Batal simpan jika stok jebol
+
+                // Eksekusi potong stok
+                usedParts.forEach(up => {
+                    const comp = DB.components.find(c => c.id == up.id);
+                    if(comp) comp.stok -= up.qty;
+                });
+            }
+
+            // ==========================================
+            // GABUNGKAN SOP INSPEKSI KE DALAM CATATAN
+            // ==========================================
             const checkedSOPs = Array.from(document.querySelectorAll('.wo-sop-checkbox:checked')).map(cb => cb.value);
             let sopText = '';
             if (checkedSOPs.length > 0) {
                 sopText = `\n\n[SOP Inspeksi Diselesaikan]:\n✓ ` + checkedSOPs.join('\n✓ ');
             }
 
-            const w = DB.workOrders.find(x => x.id == id);
-            if(w) {
-                w.status = 'pending_qc';
-                
-                // PERBAIKAN: Gabungkan catatan mekanik dengan hasil checklist SOP!
-                w.catatan = catatanLaporan + sopText; 
-                
-                w.tanggalSelesai = tgl;
-                w.usedParts = usedParts;
-                if(typeof addAuditLog === 'function') addAuditLog(currentUser ? currentUser.username : 'System', 'UPDATE', 'maintenance', `Laporan WO: ${w.number}`);
-                showToast('Laporan tersimpan. Menunggu QC.', 'success');
-            }
+            w.status = 'pending_qc';
+            w.catatan = catatanLaporan + sopText;
+            w.tanggalSelesai = tgl;
+            w.usedParts = usedParts;
+            w.biaya = biaya ? parseFloat(biaya) : 0; // Simpan besaran tagihan invoice vendor
+
+            if(typeof addAuditLog === 'function') addAuditLog(currentUser ? currentUser.username : 'System', 'UPDATE', 'maintenance', `Laporan WO: ${w.number}`);
+            showToast('Laporan tersimpan. Menunggu Verifikasi (QC).', 'success');
 
             saveData();
             closeModal('modalSelesaikanWO');
             renderMaintenance();
-            renderKomponen();
+            if(typeof renderKomponen === 'function') renderKomponen();
         }
 
         function approveQC(id) {
-            const w = DB.workOrders.find(x => x.id == id);
-            
-            // Kalimat sudah diganti menjadi "siap digunakan"
-            const pesan = `Apakah perbaikan aset pada Work Order <strong>${w ? w.number : ''}</strong> telah lulus inspeksi (QC) dan dinyatakan siap digunakan?`;
-            
-            // Kita tambahkan parameter 'verify' di akhir agar memanggil tombol yang tepat
-            showConfirm('Verifikasi Inspeksi', pesan, () => {
-                if(w) {
-                    w.status = 'completed';
-                    const asset = DB.assets.find(a => a.id == w.asetId);
-                    if(asset) asset.kondisi = 'baik';
-                    
-                    addAuditLog(currentUser ? currentUser.username : 'System', 'APPROVE', 'maintenance', `Verifikasi WO: ${w.number}`);
-                    showToast('Aset dinyatakan siap digunakan', 'success');
-                    saveData(); renderMaintenance(); renderDashboard(); renderAset();
+            // Cari data Work Order berdasarkan ID
+            const wo = DB.workOrders.find(w => w.id === id);
+            if (!wo) return;
+
+            // Tampilkan popup konfirmasi
+            showConfirm('Verifikasi Quality Control', `Apakah Anda yakin hasil perbaikan untuk Work Order <strong>${wo.number}</strong> sudah sesuai standar (SOP) dan lulus inspeksi fisik?`, () => {
+                
+                // 1. Ubah status Work Order menjadi 'completed' (Selesai)
+                wo.status = 'completed';
+                
+                // 2. Kembalikan status Aset menjadi 'tersedia' (Hijau)
+                const aset = DB.assets.find(a => a.id === wo.asetId);
+                if (aset) {
+                    aset.status = 'tersedia'; 
                 }
-            }, 'verify'); 
+
+                // 3. Catat aktivitas ini di Audit Log
+                const username = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.username : 'Perwira/Admin';
+                if (typeof addAuditLog === 'function') {
+                    addAuditLog(username, 'APPROVE', 'maintenance', `Verifikasi QC (Lulus) untuk WO: ${wo.number}`);
+                }
+
+                showToast('Verifikasi QC berhasil! Aset siap digunakan', 'success');
+                
+                // 4. Simpan perubahan ke database
+                saveData();
+                
+                // 5. Refresh semua tampilan tabel dan dashboard
+                renderMaintenance();
+                renderAset();
+                renderDashboard();
+                
+            }, 'primary');
         }
 
         // Fungsi Selesaikan WO
@@ -7516,9 +8017,12 @@
                 if (w) { 
                     w.status = 'completed'; 
                     
-                    // Otomatis kembalikan kondisi aset menjadi baik
+                    // Otomatis kembalikan kondisi aset menjadi baik dan status tersedia
                     const asset = DB.assets.find(a => a.id === w.asetId);
-                    if (asset) asset.kondisi = 'baik';
+                    if (asset) {
+                        asset.kondisi = 'baik';
+                        asset.status = 'tersedia'; // <-- TAMBAHKAN BARIS INI
+                    }
                     
                     const username = currentUser ? currentUser.username : 'System';
                     addAuditLog(username, 'UPDATE', 'maintenance', `Selesaikan WO: ${w.number}`); 
@@ -7530,6 +8034,77 @@
                     renderAset();
                 }
             });
+        }
+
+        // ==========================================
+        // FITUR BARU: JADWALKAN PEMELIHARAAN MANUAL (UX IMPROVEMENT)
+        // ==========================================
+        // ==========================================
+        // FITUR BARU: JADWALKAN PEMELIHARAAN MANUAL
+        // ==========================================
+        // ==========================================
+        // FITUR BARU: JADWALKAN PEMELIHARAAN MANUAL (UPDATE STATUS ASET)
+        // ==========================================
+        // ==========================================
+        // FITUR BARU: JADWALKAN PEMELIHARAAN MANUAL
+        // ==========================================
+        function jadwalkanPemeliharaan(id) {
+            const aset = DB.assets.find(a => a.id == id);
+            if (!aset) return;
+
+            showConfirm(
+                'Buat Jadwal Perawatan', 
+                `Jadwalkan pemeliharaan untuk <strong>${aset.nama} (${aset.nopol || '-'})</strong>:<br><br>
+                <div style="text-align: left;">
+                    <label class="form-label" style="font-size: 12px;">Tanggal Pelaksanaan:</label>
+                    <input type="date" id="inputJadwalTgl" class="form-control" style="margin-bottom: 12px;" value="${new Date().toISOString().split('T')[0]}">
+                    
+                    <label class="form-label" style="font-size: 12px;">Tujuan / Keluhan (Opsional):</label>
+                    <input type="text" id="inputJadwalKeluhan" class="form-control" placeholder="Contoh: Ganti oli rutin, Cek tekanan rantai...">
+                </div>`, 
+                () => {
+                    const tgl = document.getElementById('inputJadwalTgl').value;
+                    const keluhan = document.getElementById('inputJadwalKeluhan').value || 'Perawatan Rutin / Pengecekan';
+
+                    if (!tgl) {
+                        showToast('Tanggal wajib diisi!', 'warning');
+                        return;
+                    }
+
+                    const woNumber = 'JDW-' + new Date().getTime().toString().slice(-6);
+                    const newId = DB.workOrders.length > 0 ? Math.max(...DB.workOrders.map(w => w.id)) + 1 : 1;
+                    
+                    DB.workOrders.push({
+                        id: newId,
+                        number: woNumber,
+                        asetId: aset.id,
+                        aset: `${aset.nama} - ${aset.nopol || ''}`, 
+                        tanggal: tgl,
+                        keluhan: keluhan,
+                        status: 'jadwal', 
+                        kondisiAwal: aset.kondisi,
+                        statusAwal: aset.status,  // simpan status awal (misal 'tersedia')
+                        teknisi: '',
+                        catatan: '',
+                        biaya: 0,
+                        usedParts: []
+                    });
+
+                    // HAPUS BARIS INI: aset.status = 'dalam_perbaikan';   ← jangan ubah status
+
+                    saveData();
+                    showToast('Jadwal ditambahkan & Status Aset tetap Tersedia!', 'success');
+                    
+                    if (typeof renderAset === 'function') renderAset();
+                    if (typeof renderMaintenance === 'function') renderMaintenance();
+                    if (typeof renderDashboard === 'function') renderDashboard();
+                }
+            );
+
+            setTimeout(() => {
+                const inputKeluhan = document.getElementById('inputJadwalKeluhan');
+                if (inputKeluhan) inputKeluhan.focus();
+            }, 100);
         }
 
         // ============================================
@@ -7916,7 +8491,8 @@
             const form = document.getElementById('formLokasi');
             if(form) form.reset();
             document.querySelector('#modalLokasi .modal-title').textContent = 'Tambah Satuan';
-            openModal('modalLokasi', true);
+            openModal('modalLokasi');
+            initPickerMap(-0.789275, 113.921327, 5); // Koordinat tengah Indonesia, zoom out
         }
 
         // Buka Modal mode Edit (Tarik data lama)
@@ -7934,6 +8510,7 @@
 
                 document.querySelector('#modalLokasi .modal-title').textContent = 'Edit Satuan';
                 openModal('modalLokasi', true);
+                initPickerMap(l.lat, l.lng, 14);
             }
         }
 
@@ -9567,58 +10144,106 @@
             return alerts;
         }
 
-        function renderPreventiveAlerts() {
-            // 1. Cari elemen halaman dashboard (Mendeteksi berbagai kemungkinan ID)
-            const dashPage = document.getElementById('page-dashboard') || document.getElementById('dashboard');
-            
-            if (!dashPage) {
-                console.warn("Sistem tidak menemukan ID halaman Dashboard di HTML.");
-                return;
-            }
+        function getScheduleAlertCards() {
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-            // 2. Bersihkan alert lama agar tidak menumpuk
-            const oldAlert = document.getElementById('preventive-alert-box');
-            if (oldAlert) oldAlert.remove();
+            const overdueSchedules = DB.workOrders.filter(w => !['completed', 'deleted'].includes(w.status) && w.tanggal && w.tanggal < today);
+            const upcomingSchedules = DB.workOrders.filter(w => w.status === 'jadwal' && w.tanggal === tomorrowStr);
 
-            // 3. Tarik data yang butuh perbaikan
-            const alerts = getPreventiveAlerts();
-            if (alerts.length === 0) return; // Jika kosong, sembunyikan kotak
+            const maxItems = 3;
 
-            // 4. Bangun Kotak UI
-            const alertDiv = document.createElement('div');
-            alertDiv.id = 'preventive-alert-box';
-            alertDiv.style.cssText = 'background: #fff3cd; border-left: 5px solid #ffc107; padding: 16px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: flex-start; gap: 16px;';
-            
-            alertDiv.innerHTML = `
-                <div style="color: #856404; font-size: 28px; margin-top: 2px;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h4 style="margin: 0 0 6px 0; color: #856404; font-size: 16px; font-weight: 700;">Peringatan Pemeliharaan Rutin!</h4>
-                    <p style="margin: 0 0 12px 0; color: #664d03; font-size: 14px;">
-                        Sistem mendeteksi <b>${alerts.length} aset</b> telah mencapai batas maksimal operasional. Segera jadwalkan Work Order (WO) pemeliharaan.
-                    </p>
-                    <ul style="margin: 0; padding-left: 20px; color: #856404; font-size: 14px; line-height: 1.8;">
-                        ${alerts.map(a => `
-                            <li>
-                                <strong style="color: #000;">${a.nama} [${a.identitas}]</strong> &mdash; ${a.alasan}
-                                <button onclick="createWOForAsset(${a.id})" class="btn btn-sm btn-danger" style="padding: 2px 10px; font-size: 11px; margin-left: 10px; border-radius: 4px; border: none; cursor: pointer;">
-                                    <i class="fas fa-tools"></i> Buat WO
-                                </button>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
+            // Card Overdue
+            let overdueHTML = `
+                <div class="card" style="height: fit-content;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="card-title"><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Jadwal Terlewat (${overdueSchedules.length})</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="showPage('maintenance'); switchMaintTab('schedule');" title="Lihat semua jadwal">Lihat Semua</button>
+                    </div>
+                    <div class="card-body" style="max-height: 250px; overflow-y: auto;">
             `;
+            if (overdueSchedules.length === 0) {
+                overdueHTML += `<p style="color: var(--gray-500); text-align: center;">Tidak ada jadwal terlewat</p>`;
+            } else {
+                overdueHTML += `<ul style="list-style: none; padding: 0; margin: 0;">`;
+                overdueSchedules.slice(0, maxItems).forEach(s => {
+                    const aset = DB.assets.find(a => a.id === s.asetId);
+                    const nama = aset ? aset.nama : 'Unknown';
+                    const identitas = aset ? (aset.nopol || aset.noInv || '') : '';
+                    overdueHTML += `<li style="padding: 8px 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                        <div><strong>${nama}</strong> <small style="color: var(--gray-500);">${identitas}</small><br><small style="color: var(--danger);">Jadwal: ${s.tanggal}</small></div>
+                        <button class="btn btn-sm btn-danger" onclick="createWOForAsset(${s.asetId})" style="font-size: 11px;">Proses WO</button>
+                    </li>`;
+                });
+                if (overdueSchedules.length > maxItems) {
+                    overdueHTML += `<li style="text-align: center; padding: 8px;"><small>+${overdueSchedules.length - maxItems} lainnya</small></li>`;
+                }
+                overdueHTML += `</ul>`;
+            }
+            overdueHTML += `</div></div>`;
 
-            // 5. Suntikkan PAKSA ke baris paling atas di dalam halaman Dashboard
-            dashPage.insertBefore(alertDiv, dashPage.firstChild);
+            // Card Besok
+            let upcomingHTML = `
+                <div class="card" style="height: fit-content;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="card-title"><i class="fas fa-clock" style="color: var(--warning);"></i> Jadwal Besok (${upcomingSchedules.length})</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="showPage('maintenance'); switchMaintTab('schedule');">Lihat Semua</button>
+                    </div>
+                    <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+            `;
+            if (upcomingSchedules.length === 0) {
+                upcomingHTML += `<p style="color: var(--gray-500); text-align: center;">Tidak ada jadwal besok</p>`;
+            } else {
+                upcomingHTML += `<ul style="list-style: none; padding: 0; margin: 0;">`;
+                upcomingSchedules.slice(0, maxItems).forEach(s => {
+                    const aset = DB.assets.find(a => a.id === s.asetId);
+                    const nama = aset ? aset.nama : 'Unknown';
+                    const identitas = aset ? (aset.nopol || aset.noInv || '') : '';
+                    upcomingHTML += `<li style="padding: 8px 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                        <div><strong>${nama}</strong> <small style="color: var(--gray-500);">${identitas}</small><br><small style="color: var(--warning);">Jadwal: ${s.tanggal}</small></div>
+                        <button class="btn btn-sm btn-warning" onclick="createWOForAsset(${s.asetId})" style="font-size: 11px;">Proses WO</button>
+                    </li>`;
+                });
+                if (upcomingSchedules.length > maxItems) {
+                    upcomingHTML += `<li style="text-align: center; padding: 8px;"><small>+${upcomingSchedules.length - maxItems} lainnya</small></li>`;
+                }
+                upcomingHTML += `</ul>`;
+            }
+            upcomingHTML += `</div></div>`;
+
+            // Card Preventive (gunakan fungsi yang sudah ada atau buat ulang)
+            const preventiveAlerts = getPreventiveAlerts();
+            let preventiveHTML = `
+                <div class="card" style="height: fit-content;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="card-title"><i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> Peringatan Pemeliharaan (${preventiveAlerts.length})</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="showPage('maintenance'); switchMaintTab('schedule');">Lihat Semua</button>
+                    </div>
+                    <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+            `;
+            if (preventiveAlerts.length === 0) {
+                preventiveHTML += `<p style="color: var(--gray-500); text-align: center;">Tidak ada peringatan</p>`;
+            } else {
+                preventiveHTML += `<ul style="list-style: none; padding: 0; margin: 0;">`;
+                preventiveAlerts.slice(0, maxItems).forEach(a => {
+                    preventiveHTML += `<li style="padding: 8px 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                        <div><strong>${a.nama}</strong> <small>${a.identitas}</small><br><small>${a.alasan}</small></div>
+                        <button class="btn btn-sm btn-danger" onclick="createWOForAsset(${a.id})" style="font-size: 11px;">Buat WO</button>
+                    </li>`;
+                });
+                if (preventiveAlerts.length > maxItems) {
+                    preventiveHTML += `<li style="text-align: center; padding: 8px;"><small>+${preventiveAlerts.length - maxItems} lainnya</small></li>`;
+                }
+                preventiveHTML += `</ul>`;
+            }
+            preventiveHTML += `</div></div>`;
+
+            return { overdueHTML, upcomingHTML, preventiveHTML };
         }
 
-        // ==========================================
         // AUTO-HAPUS PRELOADER SAAT HALAMAN SELESAI DIMUAT
-        // (Berjalan otomatis tanpa perlu dipanggil fungsi lain)
-        // ==========================================
         window.addEventListener('load', function() {
             setTimeout(() => {
                 const preloader = document.getElementById('app-preloader');
@@ -9627,6 +10252,260 @@
                     setTimeout(() => preloader.remove(), 300); 
                 }
             }, 100);
+        });
+
+        // PERBAIKAN PETA SAAT FULLSCREEN
+        document.addEventListener('fullscreenchange', function() {
+            // Beri jeda 300 milidetik agar animasi fullscreen selesai dulu
+            setTimeout(function() {
+                if (typeof map !== 'undefined') {
+                    map.invalidateSize(); // Perintah wajib Leaflet untuk menggambar ulang peta
+                }
+            }, 300);
+        });
+
+        // Tambahan untuk browser lain (Safari/Lama)
+        document.addEventListener('webkitfullscreenchange', function() {
+            setTimeout(function() { if (typeof map !== 'undefined') map.invalidateSize(); }, 300);
+        });
+
+        // ============================================
+        // FUNGSI MASTER VENDOR
+        // ============================================
+
+        function renderVendor() {
+            const tbody = document.getElementById('tableVendorBody');
+            if (!tbody) return;
+
+            const search = document.getElementById('searchVendor').value.toLowerCase();
+            const filterSpesialisasi = document.getElementById('filterSpesialisasiVendor').value;
+
+            const filtered = DB.vendors.filter(v => {
+                const matchSearch = v.nama.toLowerCase().includes(search);
+                const matchSpesialisasi = !filterSpesialisasi || v.spesialisasi === filterSpesialisasi;
+                return matchSearch && matchSpesialisasi;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"><i class="fas fa-store-slash"></i></div><div class="empty-state-title">Belum ada data vendor</div></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((v, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${v.nama}</strong></td>
+                    <td><span class="badge badge-secondary">${v.spesialisasi}</span></td>
+                    <td>${v.telepon}</td>
+                    <td>${v.alamat}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-secondary" onclick="editVendor(${v.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteVendor(${v.id})" title="Hapus"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function saveVendor() {
+            const idField = document.getElementById('editVendorId');
+            const nama = document.getElementById('vendorNama').value;
+            const spesialisasi = document.getElementById('vendorSpesialisasi').value;
+            const telepon = document.getElementById('vendorTelepon').value;
+            const alamat = document.getElementById('vendorAlamat').value;
+
+            if (!nama || !spesialisasi || !telepon) {
+                showToast('Mohon lengkapi Nama, Spesialisasi, dan No Telepon!', 'warning');
+                return;
+            }
+
+            if (idField && idField.value) {
+                // Mode Edit
+                const id = parseInt(idField.value);
+                const index = DB.vendors.findIndex(v => v.id === id);
+                if (index !== -1) {
+                    DB.vendors[index] = { ...DB.vendors[index], nama, spesialisasi, telepon, alamat };
+                    showToast('Data vendor berhasil diperbarui', 'success');
+                }
+            } else {
+                // Mode Tambah Baru
+                const newId = DB.vendors.length > 0 ? Math.max(...DB.vendors.map(v => v.id)) + 1 : 1;
+                DB.vendors.push({ id: newId, nama, spesialisasi, telepon, alamat });
+                showToast('Vendor baru berhasil ditambahkan', 'success');
+            }
+
+            saveData();
+            closeModal('modalVendor');
+            renderVendor();
+        }
+
+        function editVendor(id) {
+            const vendor = DB.vendors.find(v => v.id === id);
+            if (vendor) {
+                document.getElementById('editVendorId').value = vendor.id;
+                document.getElementById('vendorNama').value = vendor.nama;
+                document.getElementById('vendorSpesialisasi').value = vendor.spesialisasi;
+                document.getElementById('vendorTelepon').value = vendor.telepon;
+                document.getElementById('vendorAlamat').value = vendor.alamat;
+                
+                document.getElementById('modalVendorTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Data Vendor';
+                openModal('modalVendor', true); // Parameter true untuk skip reset form saat modal dibuka
+            }
+        }
+
+        function deleteVendor(id) {
+            showConfirm('Hapus Vendor', 'Apakah Anda yakin ingin menghapus data vendor/rekanan ini?', () => {
+                DB.vendors = DB.vendors.filter(v => v.id !== id);
+                saveData();
+                renderVendor();
+                showToast('Vendor berhasil dihapus dari Master Data', 'success');
+            });
+        }
+
+        // Variabel global untuk peta di dalam modal
+        let pickerMap = null;
+        let pickerMarker = null;
+
+        // Fungsi untuk inisialisasi dan me-refresh peta
+        function initPickerMap(lat = -0.789275, lng = 113.921327, zoom = 5) {
+            // Beri jeda 200ms agar animasi modal selesai membuka, 
+            // Mencegah error tampilan peta Leaflet yang terpotong (abu-abu)
+            setTimeout(() => {
+                if (!pickerMap) {
+                    // Jika peta belum pernah dibuat, inisialisasi baru
+                    pickerMap = L.map('pickerMap').setView([lat, lng], zoom);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap'
+                    }).addTo(pickerMap);
+
+                    // Event saat peta diklik
+                    // Event saat peta diklik
+                    pickerMap.on('click', async function(e) {
+                        const selectedLat = e.latlng.lat.toFixed(6);
+                        const selectedLng = e.latlng.lng.toFixed(6);
+                        
+                        // Isi otomatis ke kolom input Lat Lng
+                        document.getElementById('lokasiLat').value = selectedLat;
+                        document.getElementById('lokasiLng').value = selectedLng;
+
+                        // Pindahkan atau buat marker baru
+                        if (pickerMarker) {
+                            pickerMarker.setLatLng(e.latlng);
+                        } else {
+                            pickerMarker = L.marker(e.latlng).addTo(pickerMap);
+                        }
+
+                        // --- TAMBAHAN REVERSE GEOCODING (Ubah Koordinat jadi Teks) ---
+                        const textareaAlamat = document.getElementById('lokasiAlamat');
+                        textareaAlamat.value = "Mengambil alamat..."; // Indikator loading sementara
+                        
+                        try {
+                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${selectedLat}&lon=${selectedLng}`);
+                            const data = await response.json();
+                            
+                            if (data && data.display_name) {
+                                textareaAlamat.value = data.display_name; // Tulis alamat asli
+                            } else {
+                                textareaAlamat.value = "Alamat tidak dikenali di titik ini.";
+                            }
+                        } catch (error) {
+                            console.error("Gagal mendapatkan alamat dari peta:", error);
+                            textareaAlamat.value = ""; // Kosongkan jika gagal jaringan
+                            showToast('Gagal memuat alamat. Periksa koneksi internet Anda.', 'error');
+                        }
+                    });
+                } else {
+                    // Jika peta sudah ada, cukup refresh ukuran dan posisinya
+                    pickerMap.invalidateSize();
+                    pickerMap.setView([lat, lng], zoom);
+                }
+                
+                // Atur posisi marker saat form dibuka (Mode Edit / Peta di-refresh)
+                if (lat !== -0.789275 && lng !== 113.921327) {
+                    if (pickerMarker) {
+                        pickerMarker.setLatLng([lat, lng]);
+                    } else {
+                        pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
+                    }
+                } else {
+                    // Hapus marker jika mode Tambah Baru (belum ada titik yang dipilih)
+                    if (pickerMarker) {
+                        pickerMap.removeLayer(pickerMarker);
+                        pickerMarker = null;
+                    }
+                }
+            }, 200);
+        }
+
+        // Variabel untuk menunda pencarian agar API tidak di-spam saat mengetik cepat (Debounce)
+        let timerCariAlamat;
+
+        function cariAlamat(kataKunci) {
+            clearTimeout(timerCariAlamat);
+            const kotakHasil = document.getElementById('hasilPencarianAlamat');
+            
+            // Minimal ketik 4 huruf baru mulai mencari
+            if (kataKunci.length < 4) {
+                kotakHasil.style.display = 'none';
+                return;
+            }
+
+            // Tunggu 600ms setelah user berhenti mengetik baru hit ke server
+            timerCariAlamat = setTimeout(async () => {
+                try {
+                    kotakHasil.innerHTML = '<div class="alamat-item" style="color: gray;"><i>Mencari lokasi...</i></div>';
+                    kotakHasil.style.display = 'block';
+
+                    // Memanggil API Nominatim OpenStreetMap (Gratis)
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${kataKunci}&limit=5&countrycodes=id`);
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        kotakHasil.innerHTML = data.map(item => {
+                            // Hindari error tanda kutip di dalam string nama lokasi
+                            const namaAman = item.display_name.replace(/'/g, "\\'"); 
+                            return `<div class="alamat-item" onclick="pilihAlamatDariPencarian(${item.lat}, ${item.lon}, '${namaAman}')">
+                                        <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 5px;"></i> ${item.display_name}
+                                    </div>`;
+                        }).join('');
+                    } else {
+                        kotakHasil.innerHTML = '<div class="alamat-item" style="color: red;">Lokasi tidak ditemukan</div>';
+                    }
+                } catch (error) {
+                    console.error("Gagal mencari alamat:", error);
+                    kotakHasil.style.display = 'none';
+                }
+            }, 600); 
+        }
+
+        // Fungsi saat user mengklik salah satu hasil dari dropdown pencarian
+        function pilihAlamatDariPencarian(lat, lng, alamatLengkap) {
+            // 1. Isi form
+            document.getElementById('lokasiAlamat').value = alamatLengkap;
+            document.getElementById('lokasiLat').value = lat;
+            document.getElementById('lokasiLng').value = lng;
+            
+            // 2. Sembunyikan dropdown
+            document.getElementById('hasilPencarianAlamat').style.display = 'none';
+
+            // 3. Pindahkan peta dan marker ke lokasi yang dipilih
+            if (pickerMap) {
+                pickerMap.setView([lat, lng], 15);
+                if (pickerMarker) {
+                    pickerMarker.setLatLng([lat, lng]);
+                } else {
+                    pickerMarker = L.marker([lat, lng]).addTo(pickerMap);
+                }
+            }
+        }
+
+        // Menyembunyikan dropdown pencarian jika user klik di sembarang tempat (luar area form)
+        document.addEventListener('click', function(e) {
+            if (e.target.id !== 'lokasiAlamat') {
+                const kotakHasil = document.getElementById('hasilPencarianAlamat');
+                if (kotakHasil) kotakHasil.style.display = 'none';
+            }
         });
     </script>
 </body>
