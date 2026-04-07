@@ -13,9 +13,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary: #4b5320;
-            --primary-dark: #3a4018;
-            --primary-light: #5d6628;
+           --primary: #4A5D23; 
+            --primary-dark: #37461A;
+            --primary-light: #687E32;
             --secondary: #d4af37;
             --secondary-dark: #b89628;
             --success: #38a169;
@@ -1852,23 +1852,23 @@
            TACTICAL / FULL ARMY DARK MODE STYLES
            ========================================= */
         body.dark-mode {
-            /* Warna Latar */
-            --white: #2a3629;         
-            --gray-50: #1c251b;       
-            --gray-100: #354533;      
-            --gray-200: #435740;      
-            --gray-300: #556b51;      
+            /* Warna Latar Black Army (Hitam Pekat ke Abu Arang) */
+            --white: #1e1e1e;         
+            --gray-50: #121212;       
+            --gray-100: #1a1a1a;      
+            --gray-200: #2a2b2a;      
+            --gray-300: #3b3c3b;      
             
-            /* Warna Teks (Semakin Terang) */
-            --gray-600: #b5c4b1;      
-            --gray-800: #f4f7f4;      
-            --text-main: #e2e8e0;     
+            /* Warna Teks (Terang/Putih) */
+            --gray-600: #a0a4a0;      
+            --gray-800: #f0f0f0;      
+            --text-main: #ffffff;     
             
-            /* Warna Emas Kavaleri */
-            --primary: #d4af37;       
-            --primary-dark: #b89628;  
-            --primary-light: #f3d56a; 
-            --secondary: #f6e05e;     
+            /* Warna Aksen Emas Kavaleri & Hijau Army (opsional) */
+            --primary: #4A5D23;       /* Aksen Hijau Army untuk Black Theme */
+            --primary-dark: #37461A;  
+            --primary-light: #687E32; 
+            --secondary: #d4af37;     /* Aksen Gold Kavaleri */
             
             background-color: var(--gray-50);
             color: var(--text-main);
@@ -1931,14 +1931,23 @@
         }
         body.dark-mode .modal-header .modal-title,
         body.dark-mode .modal-header i,
-        body.dark-mode .bar-value{
-            color: #1c251b !important; /* Teks jadi warna hijau sangat gelap/hitam */
+        body.dark-mode .bar-value {
+            color: #ffffff !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-weight: bold;
         }
         body.dark-mode .modal-header .modal-close {
             color: rgba(28, 37, 27, 0.7) !important;
         }
         body.dark-mode .modal-header .modal-close:hover {
             color: #1c251b !important;
+        }
+
+        body.dark-mode .btn-warning,
+        body.dark-mode .btn-info {
+            color: #ffffff;
         }
         body.dark-mode .card,
         body.dark-mode .top-bar,
@@ -1951,10 +1960,7 @@
 
         /* --- 3. TOMBOL GOLD KAVALERI --- */
         body.dark-mode .btn-primary {
-            background-color: var(--primary) !important;
-            border-color: var(--primary) !important;
-            color: #1c251b !important; /* Teks dalam tombol gold tetap gelap agar kontras */
-            font-weight: 700 !important;
+            color: #ffffff !important;
         }
         body.dark-mode .btn-primary i { color: #1c251b !important; }
         
@@ -1993,6 +1999,65 @@
         body.dark-mode .leaflet-popup-content-wrapper { background-color: var(--white); color: var(--text-main); }
         body.dark-mode .leaflet-popup-tip { background-color: var(--white); }
         body.dark-mode .leaflet-popup-content h4 { color: var(--primary) !important; }
+        
+        /* Dark Mode - Notifications Panel */
+        body.dark-mode .notifications-panel {
+            background: #1e1e1e !important;
+            border: 1px solid #3a3a3a !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        body.dark-mode .notifications-header {
+            background: #2a2a2a !important;
+            border-bottom: 1px solid #3a3a3a !important;
+        }
+
+        body.dark-mode .notifications-header h4 {
+            color: #f0f0f0 !important;
+        }
+
+        body.dark-mode .notifications-header button {
+            color: #d4af37 !important;
+            background: transparent;
+        }
+
+        body.dark-mode .notifications-header button:hover {
+            background: rgba(255,255,255,0.1) !important;
+        }
+
+        body.dark-mode .notification-item {
+            background: #1e1e1e !important;
+            border-bottom: 1px solid #2a2a2a !important;
+        }
+
+        body.dark-mode .notification-item:hover {
+            background: #2a2a2a !important;
+        }
+
+        body.dark-mode .notification-item.unread {
+            background: rgba(75, 83, 32, 0.25) !important;
+        }
+
+        body.dark-mode .notification-title {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .notification-message {
+            color: #c0c0c0 !important;
+        }
+
+        body.dark-mode .notification-time {
+            color: #888888 !important;
+        }
+
+        body.dark-mode .notification-actions button {
+            color: #aaaaaa !important;
+        }
+
+        body.dark-mode .notification-actions button:hover {
+            background: #3a3a3a !important;
+            color: #d4af37 !important;
+        }
 
         /* Toggle Switch */
         .theme-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
@@ -4033,6 +4098,20 @@
             </div>
             <div class="modal-body">
                 <form id="formWO">
+                    <!-- Di dalam modalWO, setelah prioritas atau di baris terpisah -->
+                    <div class="form-row">
+                        <!-- Tambahan: Tingkat Pemeliharaan -->
+                        <div class="form-group">
+                            <label class="form-label">Tingkat Pemeliharaan *</label>
+                            <select class="form-control" id="woTingkat" required>
+                                <option value="">Pilih Tingkat</option>
+                                <option value="organik">Organik (Unit Sendiri)</option>
+                                <option value="lapangan">Lapangan (Benglap)</option>
+                                <option value="wilayah">Wilayah (Bengrah)</option>
+                                <option value="pusat">Pusat (Bengpuspal/Depo)</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Aset yang Diperbaiki *</label>
@@ -7661,6 +7740,7 @@
             const pelaksana = pelaksanaElement ? pelaksanaElement.value : 'internal';
             const teknisi = document.getElementById('woTeknisi').value;
             const vendor = document.getElementById('woVendor').value;
+            const tingkat = document.getElementById('woTingkat').value;
 
             // Validasi Field berdasarkan Pelaksana
             if (pelaksana === 'internal' && !teknisi) {
