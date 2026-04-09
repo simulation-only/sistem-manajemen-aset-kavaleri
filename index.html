@@ -6655,7 +6655,7 @@
             };
             return badges[kondisi] || '<span class="badge badge-secondary">' + kondisi + '</span>';
         }
-        
+
         function handleFotoAset(event) {
             const files = event.target.files;
             for (let i = 0; i < files.length; i++) {
@@ -10978,9 +10978,45 @@
 
         // Mulai scan (dipanggil tombol)
         async function startCameraScan() {
-            // Dapatkan daftar kamera terlebih dahulu
-            await getAvailableCameras();
-            await startCameraScanWithCamera();
+            const resultDiv = document.getElementById('qr-result');
+            resultDiv.innerHTML = '<span style="color: #3182ce;"><i class="fas fa-spinner fa-pulse"></i> Meminta akses kamera...</span>';
+            
+            // Dapatkan daftar kamera
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                console.log("Available cameras:", devices);
+                if (devices.length === 0) throw new Error("Tidak ada kamera");
+                
+                // Pilih kamera belakang jika ada
+                let cameraId = null;
+                const backCam = devices.find(cam => cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear'));
+                if (backCam) cameraId = backCam.id;
+                else cameraId = devices[0].id;
+                
+                // Hentikan instance lama
+                if (html5QrCode && isScanning) await stopCameraScan();
+                
+                html5QrCode = new Html5Qrcode("qr-reader");
+                const config = { fps: 10, qrbox: { width: 300, height: 300 } };
+                
+                await html5QrCode.start(
+                    { deviceId: { exact: cameraId } },
+                    config,
+                    (decodedText) => {
+                        console.log("QR scanned:", decodedText);
+                        handleQRScanResult(decodedText);
+                    },
+                    (error) => { /* ignore frame errors */ }
+                );
+                isScanning = true;
+                document.getElementById('btn-start-scan').style.display = 'none';
+                document.getElementById('btn-stop-scan').style.display = 'block';
+                resultDiv.innerHTML = '<span style="color: green;"><i class="fas fa-video"></i> Kamera aktif, arahkan ke QR Code...</span>';
+            } catch (err) {
+                console.error(err);
+                resultDiv.innerHTML = `<span style="color: red;">Gagal akses kamera: ${err.message}</span>`;
+                document.getElementById('btn-start-scan').style.display = 'block';
+            }
         }
 
         // Ganti kamera (depan/belakang)
@@ -11020,97 +11056,159 @@
             const resultDiv = document.getElementById('qr-result');
             if (!resultDiv) return;
             
-            console.log("Raw QR result:", decodedText);
+            // Tampilkan raw hasil scan untuk debugging
+            console.log("RAW SCAN RESULT:", decodedText);
             
-            let asetId = null;
-            let noInv = null;
-            let namaAset = null;
+            // Tampilkan di UI agar user tahu apa yang terbaca
+            resultDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Hasil scan mentah:<br>
+                    <code style="word-break: break-all;">${decodedText}</code>
+                    <br><small>Sedang mencari aset...</small>
+                </div>
+            `;
             
-            // Coba parse JSON
+            // Hentikan kamera sementara agar tidak terus scan
+            stopCameraScan();
+            
+            // Cari aset dengan berbagai metode
+            let asset = null;
+            let searchMethod = "";
+            
+            // Metode 1: Parse sebagai JSON
             try {
                 const data = JSON.parse(decodedText);
-                asetId = data.id ? parseInt(data.id) : null;  // pastikan integer
-                noInv = data.noInv || data.no_inventaris || null;
-                namaAset = data.nama || null;
-                console.log("Parsed JSON:", { asetId, noInv, namaAset });
+                console.log("Parsed JSON:", data);
+                
+                // Coba cari berdasarkan id (konversi ke number)
+                if (data.id !== undefined) {
+                    const idNum = Number(data.id);
+                    if (!isNaN(idNum)) {
+                        asset = DB.assets.find(a => a.id === idNum);
+                        if (asset) searchMethod = `ID = ${idNum}`;
+                    }
+                }
+                // Jika belum ketemu, cari berdasarkan noInv
+                if (!asset && data.noInv) {
+                    asset = DB.assets.find(a => a.noInv === data.noInv || a.no_inventaris === data.noInv);
+                    if (asset) searchMethod = `No.Inventaris = ${data.noInv}`;
+                }
+                // Jika belum, cari berdasarkan nama (case-insensitive, partial)
+                if (!asset && data.nama) {
+                    asset = DB.assets.find(a => a.nama.toLowerCase().includes(data.nama.toLowerCase()));
+                    if (asset) searchMethod = `Nama mengandung "${data.nama}"`;
+                }
             } catch(e) {
-                // Bukan JSON, coba sebagai teks biasa (nomor inventaris)
-                noInv = decodedText.trim();
-                console.log("Plain text as noInv:", noInv);
+                console.warn("Bukan format JSON, coba sebagai teks biasa");
             }
             
-            // Cari aset berdasarkan ID (prioritas) atau nomor inventaris
-            let asset = null;
-            if (asetId) {
-                asset = DB.assets.find(a => a.id === asetId);
-                if (asset) console.log("Found by ID:", asset.id);
+            // Metode 2: Jika bukan JSON atau belum ketemu, coba sebagai teks (No.Inventaris atau Nama)
+            if (!asset) {
+                // Coba sebagai nomor inventaris
+                asset = DB.assets.find(a => a.noInv === decodedText || a.no_inventaris === decodedText);
+                if (asset) searchMethod = `No.Inventaris langsung = ${decodedText}`;
             }
-            if (!asset && noInv) {
-                asset = DB.assets.find(a => a.noInv === noInv || a.no_inventaris === noInv);
-                if (asset) console.log("Found by noInv:", asset.noInv);
+            if (!asset) {
+                // Coba sebagai nomor polisi
+                asset = DB.assets.find(a => a.nopol === decodedText);
+                if (asset) searchMethod = `No.Polisi = ${decodedText}`;
             }
-            if (!asset && namaAset) {
-                asset = DB.assets.find(a => a.nama.toLowerCase().includes(namaAset.toLowerCase()));
-                if (asset) console.log("Found by name:", asset.nama);
+            if (!asset) {
+                // Coba sebagai substring nama (case insensitive)
+                const lowerText = decodedText.toLowerCase();
+                asset = DB.assets.find(a => a.nama.toLowerCase().includes(lowerText));
+                if (asset) searchMethod = `Nama mengandung "${decodedText}"`;
             }
             
-            if (asset) {
-                // Tampilkan detail LENGKAP aset dalam modal
-                const detailHtml = `
-                    <div class="alert alert-success" style="text-align: left; max-height: 70vh; overflow-y: auto;">
-                        <h4 style="color: var(--primary); margin-bottom: 12px;">
-                            <i class="fas fa-check-circle"></i> Detail Aset
-                        </h4>
-                        <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div><strong>Nama Aset:</strong></div><div>${asset.nama}</div>
-                            <div><strong>Nomor Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
-                            <div><strong>Kategori:</strong></div><div>${getKategoriLabel(asset.kategori)}</div>
-                            <div><strong>Nomor Seri:</strong></div><div>${asset.noSeri || '-'}</div>
-                            <div><strong>Nomor Polisi:</strong></div><div>${asset.nopol || '-'}</div>
-                            <div><strong>Merk/Pabrikan:</strong></div><div>${asset.merk || '-'}</div>
-                            <div><strong>Tahun:</strong></div><div>${asset.tahun || '-'}</div>
-                            <div><strong>Kondisi:</strong></div><div>${getKondisiBadge(asset.kondisi)}</div>
-                            <div><strong>Status:</strong></div><div>${asset.status || '-'}</div>
-                            <div><strong>Lokasi Satuan:</strong></div><div>${asset.lokasi || '-'}</div>
-                            <div><strong>Penanggung Jawab:</strong></div><div>${asset.pj || '-'}</div>
-                            <div><strong>Nilai Aset:</strong></div><div>Rp ${formatNumber(asset.nilai || 0)}</div>
-                            <div><strong>Jam Operasi:</strong></div><div>${asset.jamOperasi || 0} Jam</div>
-                            <div><strong>Kilometer:</strong></div><div>${asset.kilometer || 0} KM</div>
-                            <div><strong>Tanggal Perolehan:</strong></div><div>${asset.tanggalPerolehan || '-'}</div>
-                            <div><strong>Sumber Anggaran:</strong></div><div>${asset.anggaran || '-'}</div>
-                        </div>
-                        <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
-                            <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">
-                                <i class="fas fa-external-link-alt"></i> Buka Halaman Detail
-                            </button>
-                            <button class="btn btn-secondary btn-sm" onclick="stopCameraScan(); document.getElementById('qr-result').innerHTML = '';">
-                                <i class="fas fa-redo"></i> Scan Lagi
-                            </button>
-                        </div>
-                    </div>
-                `;
-                resultDiv.innerHTML = detailHtml;
-                
-                // Optional: getar/vibrate
-                if (navigator.vibrate) navigator.vibrate(200);
-                
-                // Hentikan kamera setelah scan berhasil (agar tidak terus scanning)
-                stopCameraScan();
-                
-            } else {
-                // Aset tidak ditemukan
+            // Jika masih tidak ketemu, tampilkan semua aset untuk debugging (opsional)
+            if (!asset) {
+                console.log("Daftar aset yang tersedia:", DB.assets.map(a => ({ id: a.id, nama: a.nama, noInv: a.noInv })));
                 resultDiv.innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="fas fa-times-circle"></i> Aset tidak ditemukan.<br>
-                        Data QR: ${decodedText.substring(0, 80)}${decodedText.length > 80 ? '...' : ''}<br>
-                        <small>Pastikan QR Code sesuai dengan data aset yang terdaftar.</small>
-                        <div style="margin-top: 12px;">
-                            <button class="btn btn-secondary btn-sm" onclick="stopCameraScan(); document.getElementById('qr-result').innerHTML = ''; startCameraScan();">
-                                <i class="fas fa-redo"></i> Scan Ulang
-                            </button>
-                        </div>
+                        <i class="fas fa-times-circle"></i> Aset TIDAK DITEMUKAN!<br>
+                        Hasil scan: <code>${decodedText}</code><br>
+                        <strong>Kemungkinan penyebab:</strong><br>
+                        - QR Code tidak sesuai dengan data aset yang terdaftar.<br>
+                        - Format QR berbeda (misal berisi teks biasa, bukan ID/inventaris).<br>
+                        <button class="btn btn-secondary btn-sm mt-2" onclick="startCameraScan()">Scan Ulang</button>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="showManualInput()">Input Manual</button>
                     </div>
                 `;
+                return;
+            }
+            
+            // ========== ASET DITEMUKAN ==========
+            console.log("Aset ditemukan via:", searchMethod, asset);
+            
+            // Format detail lengkap
+            const detailHtml = `
+                <div class="alert alert-success" style="text-align: left; max-height: 70vh; overflow-y: auto;">
+                    <h4 style="color: var(--primary); margin-bottom: 12px;">
+                        <i class="fas fa-check-circle"></i> Detail Aset
+                        <span style="float: right; font-size: 12px; font-weight: normal;">(ditemukan via: ${searchMethod})</span>
+                    </h4>
+                    <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div><strong>Nama Aset:</strong></div><div>${asset.nama}</div>
+                        <div><strong>Nomor Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
+                        <div><strong>Kategori:</strong></div><div>${getKategoriLabel(asset.kategori)}</div>
+                        <div><strong>Nomor Seri:</strong></div><div>${asset.noSeri || '-'}</div>
+                        <div><strong>Nomor Polisi:</strong></div><div>${asset.nopol || '-'}</div>
+                        <div><strong>Merk/Pabrikan:</strong></div><div>${asset.merk || '-'}</div>
+                        <div><strong>Tahun:</strong></div><div>${asset.tahun || '-'}</div>
+                        <div><strong>Kondisi:</strong></div><div>${getKondisiBadge(asset.kondisi)}</div>
+                        <div><strong>Status:</strong></div><div>${asset.status || '-'}</div>
+                        <div><strong>Lokasi Satuan:</strong></div><div>${asset.lokasi || '-'}</div>
+                        <div><strong>Penanggung Jawab:</strong></div><div>${asset.pj || '-'}</div>
+                        <div><strong>Nilai Aset:</strong></div><div>Rp ${formatNumber(asset.nilai || 0)}</div>
+                        <div><strong>Jam Operasi:</strong></div><div>${asset.jamOperasi || 0} Jam</div>
+                        <div><strong>Kilometer:</strong></div><div>${asset.kilometer || 0} KM</div>
+                        <div><strong>Tanggal Perolehan:</strong></div><div>${asset.tanggalPerolehan || '-'}</div>
+                        <div><strong>Sumber Anggaran:</strong></div><div>${asset.anggaran || '-'}</div>
+                    </div>
+                    ${asset.foto && asset.foto.length > 0 ? `<div style="margin-top: 12px;"><strong>Foto:</strong><br><div class="image-preview" style="grid-template-columns: repeat(auto-fill, minmax(80px,1fr));">${asset.foto.map(f => `<img src="${f}" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">`).join('')}</div></div>` : ''}
+                    <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">
+                            <i class="fas fa-external-link-alt"></i> Buka Halaman Detail
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="resetAndScanAgain()">
+                            <i class="fas fa-redo"></i> Scan Lagi
+                        </button>
+                    </div>
+                </div>
+            `;
+            resultDiv.innerHTML = detailHtml;
+            
+            // Getar jika support
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+
+        // Fungsi bantu untuk reset dan scan ulang
+        function resetAndScanAgain() {
+            document.getElementById('qr-result').innerHTML = '';
+            startCameraScan();
+        }
+
+        // Fungsi input manual jika scan gagal
+        function showManualInput() {
+            const resultDiv = document.getElementById('qr-result');
+            resultDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-keyboard"></i> Input Manual Nomor Inventaris<br>
+                    <input type="text" id="manualInvInput" class="form-control mt-2" placeholder="Contoh: INV-2024-001">
+                    <button class="btn btn-primary btn-sm mt-2" onclick="cariAsetManual()">Cari Aset</button>
+                </div>
+            `;
+        }
+
+        function cariAsetManual() {
+            const inv = document.getElementById('manualInvInput').value.trim();
+            if (!inv) return;
+            const asset = DB.assets.find(a => a.noInv === inv || a.no_inventaris === inv);
+            if (asset) {
+                // Tampilkan detail aset dengan cara yang sama seperti di atas
+                handleQRScanResult(JSON.stringify({ id: asset.id, noInv: asset.noInv, nama: asset.nama }));
+            } else {
+                alert("Aset tidak ditemukan!");
             }
         }
 
