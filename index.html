@@ -2189,8 +2189,13 @@
         #qr-result {
             display: block !important;
             visibility: visible !important;
-            min-height: 100px;
-            margin-top: 16px;
+            min-height: 150px !important;
+            background-color: var(--gray-100) !important;
+            padding: 12px !important;
+            border-radius: 8px !important;
+            margin-top: 16px !important;
+            overflow-y: auto !important;
+            max-height: 70vh !important;
         }
     </style>
 </head>
@@ -10992,8 +10997,9 @@
                     (decodedText) => {
                         console.log("QR scanned:", decodedText);
                         handleQRScanResult(decodedText);
+                        // stopCameraScan() akan dipanggil di dalam handleQRScanResult
                     },
-                    (error) => { /* ignore frame errors */ }
+                    (error) => { /* ignore */ }
                 );
                 isScanning = true;
                 document.getElementById('btn-start-scan').style.display = 'none';
@@ -11043,16 +11049,23 @@
             const resultDiv = document.getElementById('qr-result');
             if (!resultDiv) {
                 console.error("Element #qr-result tidak ditemukan!");
+                alert("Error: Elemen hasil scan tidak ditemukan. Laporkan ke pengembang.");
                 return;
             }
+            
             console.log("RAW SCAN RESULT:", decodedText);
             
-            resultDiv.innerHTML = `<div class="alert alert-info">Memproses hasil scan...</div>`;
-            stopCameraScan(); // hentikan kamera setelah scan berhasil
+            // Bersihkan dan tampilkan loading
+            resultDiv.innerHTML = `<div class="alert alert-info">Memproses scan: ${decodedText.substring(0, 50)}...</div>`;
             
+            // Hentikan kamera
+            if (typeof stopCameraScan === 'function') stopCameraScan();
+            
+            // Cari aset
             let asset = null;
             let searchMethod = "";
             
+            // Parse JSON
             try {
                 const data = JSON.parse(decodedText);
                 if (data.id !== undefined) {
@@ -11068,50 +11081,74 @@
                     asset = DB.assets.find(a => a.nama.toLowerCase().includes(data.nama.toLowerCase()));
                     if (asset) searchMethod = `Nama mengandung "${data.nama}"`;
                 }
-            } catch(e) { /* bukan JSON */ }
+            } catch(e) {
+                console.log("Bukan JSON, coba teks biasa");
+            }
             
+            // Jika belum ketemu, coba sebagai teks biasa
             if (!asset) {
                 asset = DB.assets.find(a => a.noInv === decodedText);
-                if (asset) searchMethod = `No.Inventaris langsung = ${decodedText}`;
+                if (asset) searchMethod = "No.Inventaris langsung";
             }
             if (!asset) {
                 asset = DB.assets.find(a => a.nopol === decodedText);
-                if (asset) searchMethod = `No.Polisi = ${decodedText}`;
+                if (asset) searchMethod = "No.Polisi";
             }
             
             if (!asset) {
-                resultDiv.innerHTML = `<div class="alert alert-danger">Aset tidak ditemukan!<br><button class="btn btn-secondary btn-sm mt-2" onclick="startCameraScan()">Scan Ulang</button></div>`;
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i> Aset tidak ditemukan!<br>
+                        Hasil scan: <code>${decodedText}</code><br>
+                        <button class="btn btn-secondary btn-sm mt-2" onclick="startCameraScan()">Scan Ulang</button>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="showManualInput()">Input Manual</button>
+                    </div>
+                `;
                 return;
             }
             
-            console.log("Aset ditemukan via:", searchMethod, asset);
+            console.log("Aset ditemukan:", asset);
             
+            // Bangun HTML detail
             const detailHtml = `
-                <div class="alert alert-success">
+                <div class="alert alert-success" style="text-align: left;">
                     <h4><i class="fas fa-check-circle"></i> Detail Aset <small>(${searchMethod})</small></h4>
-                    <div class="info-grid" style="grid-template-columns:1fr 1fr; gap:8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px;">
                         <div><strong>Nama:</strong></div><div>${asset.nama}</div>
                         <div><strong>No.Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
                         <div><strong>Kategori:</strong></div><div>${getKategoriLabel(asset.kategori)}</div>
                         <div><strong>Kondisi:</strong></div><div>${getKondisiBadge(asset.kondisi)}</div>
                         <div><strong>Lokasi:</strong></div><div>${asset.lokasi || '-'}</div>
-                        <div><strong>PJ:</strong></div><div>${asset.pj || '-'}</div>
-                        <div><strong>Nilai:</strong></div><div>Rp ${formatNumber(asset.nilai)}</div>
+                        <div><strong>Penanggung Jawab:</strong></div><div>${asset.pj || '-'}</div>
+                        <div><strong>Nilai Aset:</strong></div><div>Rp ${formatNumber(asset.nilai || 0)}</div>
                     </div>
-                    <div class="mt-2">
-                        <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">Lihat Detail</button>
-                        <button class="btn btn-secondary btn-sm" onclick="resetAndScanAgain()">Scan Lagi</button>
+                    <div style="margin-top: 16px; display: flex; gap: 8px;">
+                        <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">
+                            <i class="fas fa-external-link-alt"></i> Buka Detail Lengkap
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="resetAndScanAgain()">
+                            <i class="fas fa-redo"></i> Scan Lagi
+                        </button>
                     </div>
                 </div>
             `;
+            
             resultDiv.innerHTML = detailHtml;
+            
+            // Scroll ke hasil scan
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Getar (jika support)
             if (navigator.vibrate) navigator.vibrate(200);
+            
+            console.log("Detail aset berhasil ditampilkan di #qr-result");
         }
 
         // Fungsi bantu untuk reset dan scan ulang
         function resetAndScanAgain() {
-            document.getElementById('qr-result').innerHTML = '';
-            startCameraScan();
+            const resultDiv = document.getElementById('qr-result');
+            if (resultDiv) resultDiv.innerHTML = '';
+            if (typeof startCameraScan === 'function') startCameraScan();
         }
 
         // Fungsi input manual jika scan gagal
