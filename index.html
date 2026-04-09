@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -70,7 +71,7 @@
            ROLE BASED ACCESS CONTROL (RBAC) STYLES
            ========================================= */
         body[data-role="Viewer"] .btn-primary:not([onclick*="generateReport"]),
-        body[data-role="Viewer"] .btn-danger:not(#logoutBtnProfile), /* Pengecualian untuk tombol logout */
+        body[data-role="Viewer"] .btn-danger:not(#logoutBtnProfile):not(#confirmActionBtn),
         body[data-role="Viewer"] .action-buttons,
         body[data-role="Viewer"] .file-upload,
         body[data-role="Viewer"] .quick-actions .quick-action-btn:not(:last-child) {
@@ -2098,6 +2099,92 @@
         }
         .alamat-item:last-child {
             border-bottom: none;
+        }
+
+        /* ========== FAB MOBILE ========== */
+        .mobile-fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1500;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .mobile-fab .fab-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .mobile-fab .fab-btn:hover {
+            transform: scale(1.05);
+            background: var(--primary-dark);
+        }
+        .mobile-fab .fab-btn:active {
+            transform: scale(0.95);
+        }
+        /* Hanya tampil di HP */
+        @media (max-width: 768px) {
+            .mobile-fab {
+                display: flex;
+            }
+        }
+        /* Modal untuk Approval & Scan di mobile */
+        .modal-mobile-full {
+            max-width: 95% !important;
+            width: 95% !important;
+            margin: 0 auto;
+            border-radius: 16px !important;
+        }
+        /* Tombol aksi di dalam modal approval */
+        .approval-item {
+            background: var(--gray-50);
+            border-left: 4px solid var(--warning);
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .approval-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            justify-content: flex-end;
+        }
+
+        /* Kamera scan fullscreen di mobile */
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 300px;
+        }
+        #qr-reader video {
+            width: 100%;
+            height: auto;
+        }
+        .scan-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .scan-controls button {
+            flex: 1;
+            min-width: 120px;
         }
     </style>
 </head>
@@ -4513,6 +4600,58 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeModal('modalVendor')">Batal</button>
                 <button class="btn btn-primary" onclick="saveVendor()"><i class="fas fa-save"></i> Simpan Vendor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING ACTION BUTTON (hanya tampil di HP/PWA) -->
+    <div class="mobile-fab" id="mobileFab">
+        <button class="fab-btn" id="fabApprovalBtn" title="Approval Pending">
+            <i class="fas fa-check-double"></i>
+        </button>
+        <button class="fab-btn" id="fabScanBtn" title="Scan QR Code">
+            <i class="fas fa-qrcode"></i>
+        </button>
+    </div>
+
+    <!-- MODAL APPROVAL (untuk menyetujui mutasi aset/personil) -->
+    <div class="modal" id="modalApproval">
+        <div class="modal-content modal-mobile-full">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-check-circle"></i> Approval Permintaan</h3>
+                <button class="modal-close" onclick="closeModal('modalApproval')">&times;</button>
+            </div>
+            <div class="modal-body" id="approvalModalBody">
+                <!-- daftar pending akan diisi JS -->
+                <div class="loading-spinner">Memuat data...</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modalApproval')">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SCAN QR (Simulasi) -->
+    <div class="modal" id="modalScanQR">
+        <div class="modal-content modal-mobile-full">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-qrcode"></i> Scan QR Code Aset</h3>
+                <button class="modal-close" onclick="stopCameraAndClose()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Arahkan kamera ke QR Code aset.
+                </div>
+                <div id="qr-reader" style="width: 100%;"></div>
+                <div id="qr-result" style="margin-top: 16px; text-align: center;"></div>
+                <div class="scan-controls">
+                    <button class="btn btn-danger" id="btn-stop-scan" style="display: none;">Stop Kamera</button>
+                    <button class="btn btn-primary" id="btn-start-scan"><i class="fas fa-camera"></i> Mulai Scan</button>
+                    <button class="btn btn-secondary" id="btn-switch-camera" style="display: none;">Ganti Kamera</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="stopCameraAndClose()">Tutup</button>
             </div>
         </div>
     </div>
@@ -10587,6 +10726,375 @@
                 if (kotakHasil) kotakHasil.style.display = 'none';
             }
         });
+
+        // ============================================
+        // FITUR APPROVAL & SCAN QR (KHUSUS MOBILE/PWA)
+        // ============================================
+
+        // Buka modal Approval
+        function openApprovalModal() {
+            const modalBody = document.getElementById('approvalModalBody');
+            if (!modalBody) return;
+            
+            // Kumpulkan data pending
+            const pendingMutations = DB.mutations.filter(m => m.status === 'pending');
+            const pendingPersonil = DB.mutasiPersonil.filter(m => m.status === 'pending');
+            
+            if (pendingMutations.length === 0 && pendingPersonil.length === 0) {
+                modalBody.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle" style="font-size: 48px;"></i><p>Tidak ada permintaan yang perlu disetujui.</p></div>';
+            } else {
+                let html = '';
+                if (pendingMutations.length > 0) {
+                    html += `<h4><i class="fas fa-exchange-alt"></i> Mutasi Aset (${pendingMutations.length})</h4>`;
+                    pendingMutations.forEach(m => {
+                        const asset = DB.assets.find(a => a.id === m.asetId);
+                        const assetName = asset ? asset.nama : m.aset;
+                        html += `
+                            <div class="approval-item">
+                                <div><strong>${assetName}</strong> → ${m.ke}</div>
+                                <div><small>Dari: ${m.dari} | Tanggal: ${m.tanggal}</small></div>
+                                <div class="approval-actions">
+                                    <button class="btn btn-success btn-sm" onclick="approveMutasiMobile(${m.id})"><i class="fas fa-check"></i> Setujui</button>
+                                    <button class="btn btn-danger btn-sm" onclick="rejectMutasiMobile(${m.id})"><i class="fas fa-times"></i> Tolak</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                if (pendingPersonil.length > 0) {
+                    html += `<h4><i class="fas fa-user-friends"></i> Mutasi Personil (${pendingPersonil.length})</h4>`;
+                    pendingPersonil.forEach(m => {
+                        html += `
+                            <div class="approval-item">
+                                <div><strong>${m.personil}</strong> (${m.nrp}) → ${m.ke}</div>
+                                <div><small>Dari: ${m.dari} | Tanggal: ${m.tanggal}</small></div>
+                                <div class="approval-actions">
+                                    <button class="btn btn-success btn-sm" onclick="approveMutasiPersonilMobile(${m.id})"><i class="fas fa-check"></i> Setujui</button>
+                                    <button class="btn btn-danger btn-sm" onclick="rejectMutasiPersonilMobile(${m.id})"><i class="fas fa-times"></i> Tolak</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                modalBody.innerHTML = html;
+            }
+            openModal('modalApproval');
+        }
+
+        // Fungsi untuk approval/reject dari modal mobile (panggil ulang fungsi existing)
+        function approveMutasiMobile(id) {
+            approveMutasi(id);  // fungsi sudah ada di kode awal
+            closeModal('modalApproval');
+            setTimeout(() => openApprovalModal(), 500); // refresh modal
+        }
+        function rejectMutasiMobile(id) {
+            // panggil fungsi reject yang sudah ada, tapi perlu menampilkan dialog alasan? 
+            // Di kode asli, rejectMutasi menggunakan modal sendiri. Kita bisa panggil langsung.
+            // Karena rejectMutasi membuka modal internal, kita tutup dulu modal approval.
+            closeModal('modalApproval');
+            rejectMutasi(id);
+            // setelah reject selesai, nanti user bisa buka lagi approval manual
+        }
+        function approveMutasiPersonilMobile(id) {
+            approveMutasiPersonil(id);
+            closeModal('modalApproval');
+            setTimeout(() => openApprovalModal(), 500);
+        }
+        function rejectMutasiPersonilMobile(id) {
+            closeModal('modalApproval');
+            rejectMutasiPersonil(id);
+        }
+
+        // Buka modal Scan QR
+        function openScanQRModal() {
+            document.getElementById('scanQRInput').value = '';
+            document.getElementById('scanQRResult').innerHTML = '';
+            openModal('modalScanQR');
+        }
+
+        // Proses scan (manual input)
+        function processScanQR() {
+            const input = document.getElementById('scanQRInput').value.trim();
+            const resultDiv = document.getElementById('scanQRResult');
+            if (!input) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Masukkan Nomor Inventaris atau QR Code.</div>';
+                return;
+            }
+            // Cari aset berdasarkan noInv atau no_inventaris
+            const asset = DB.assets.find(a => a.noInv === input || a.no_inventaris === input);
+            if (asset) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Aset ditemukan!<br>
+                        <strong>${asset.nama}</strong><br>
+                        Inventaris: ${asset.noInv}<br>
+                        Kondisi: ${asset.kondisi}<br>
+                        Lokasi: ${asset.lokasi}<br>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="viewDetailAset(${asset.id}); closeModal('modalScanQR');">Lihat Detail</button>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-danger">Aset tidak ditemukan. Periksa kembali nomor inventaris.</div>';
+            }
+        }
+
+        // Simulasi scan kamera (demo)
+        function simulateCameraScan() {
+            // Demo: langsung isi dengan contoh nomor inventaris
+            const demoInv = DB.assets.length > 0 ? DB.assets[0].noInv : 'INV-2024-001';
+            document.getElementById('scanQRInput').value = demoInv;
+            processScanQR();
+            showToast('Demo scan: menggunakan nomor inventaris pertama', 'info');
+        }
+
+        // Pasang event listener untuk tombol FAB dan scan
+        document.addEventListener('DOMContentLoaded', function() {
+            const fabApproval = document.getElementById('fabApprovalBtn');
+            const fabScan = document.getElementById('fabScanBtn');
+            if (fabApproval) fabApproval.addEventListener('click', openApprovalModal);
+            if (fabScan) fabScan.addEventListener('click', openScanQRModal);
+            
+            const simulateBtn = document.getElementById('simulateScanBtn');
+            if (simulateBtn) simulateBtn.addEventListener('click', simulateCameraScan);
+            
+            const scanInput = document.getElementById('scanQRInput');
+            if (scanInput) scanInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') processScanQR();
+            });
+        });
+
+        // Override fungsi closeModal agar tetap aman
+        const originalCloseModal = closeModal;
+        window.closeModal = function(modalId) {
+            originalCloseModal(modalId);
+            // Jika modal approval ditutup, tidak perlu lakukan apa-apa
+        };
+
+        // ============================================
+        // SCAN QR CODE DENGAN KAMERA (html5-qrcode)
+        // ============================================
+        let html5QrCode = null;
+        let isScanning = false;
+        let currentCameraId = null;
+        let availableCameras = [];
+
+        // Fungsi untuk mendapatkan daftar kamera yang tersedia
+        async function getAvailableCameras() {
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                availableCameras = devices;
+                return devices;
+            } catch (err) {
+                console.error("Gagal mendapatkan daftar kamera:", err);
+                return [];
+            }
+        }
+
+        // Memulai scan dengan cameraId tertentu (default: belakang)
+        async function startCameraScanWithCamera(cameraId = null) {
+            const qrReader = document.getElementById('qr-reader');
+            const startBtn = document.getElementById('btn-start-scan');
+            const stopBtn = document.getElementById('btn-stop-scan');
+            const switchBtn = document.getElementById('btn-switch-camera');
+            const resultDiv = document.getElementById('qr-result');
+            
+            if (!qrReader) return;
+            
+            // Bersihkan area reader
+            qrReader.innerHTML = '';
+            
+            // Hentikan scan sebelumnya jika ada
+            if (html5QrCode && isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    await html5QrCode.clear();
+                } catch(e) { console.warn(e); }
+                isScanning = false;
+                html5QrCode = null;
+            }
+            
+            // Jika tidak ada cameraId, cari kamera belakang
+            if (!cameraId && availableCameras.length > 0) {
+                const backCamera = availableCameras.find(cam => cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear'));
+                cameraId = backCamera ? backCamera.id : availableCameras[0].id;
+            }
+            
+            resultDiv.innerHTML = '<span style="color: #3182ce;"><i class="fas fa-spinner fa-pulse"></i> Memulai kamera...</span>';
+            
+            try {
+                html5QrCode = new Html5Qrcode("qr-reader");
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                
+                await html5QrCode.start(
+                    cameraId ? { deviceId: { exact: cameraId } } : { facingMode: "environment" },
+                    config,
+                    (decodedText, decodedResult) => {
+                        // Sukses scan
+                        console.log("Scan result:", decodedText);
+                        handleQRScanResult(decodedText);
+                        // Hentikan scan setelah berhasil (opsional, bisa di-comment jika ingin scan lanjutan)
+                        stopCameraScan();
+                    },
+                    (errorMessage) => {
+                        // Error scanning (biasanya frame tidak terbaca) - abaikan
+                        // console.debug(errorMessage);
+                    }
+                );
+                
+                isScanning = true;
+                if (startBtn) startBtn.style.display = 'none';
+                if (stopBtn) stopBtn.style.display = 'block';
+                if (switchBtn && availableCameras.length > 1) switchBtn.style.display = 'block';
+                resultDiv.innerHTML = '<span style="color: green;"><i class="fas fa-video"></i> Kamera aktif, arahkan ke QR Code...</span>';
+                
+            } catch (err) {
+                console.error("Gagal memulai kamera:", err);
+                let errorMsg = 'Gagal mengakses kamera. ';
+                if (err.name === 'NotAllowedError') {
+                    errorMsg += 'Izin kamera ditolak. Silakan izinkan akses kamera di browser Anda.';
+                } else if (err.name === 'NotFoundError') {
+                    errorMsg += 'Tidak ditemukan kamera di perangkat ini.';
+                } else if (err.name === 'NotReadableError') {
+                    errorMsg += 'Kamera sedang digunakan oleh aplikasi lain.';
+                } else {
+                    errorMsg += 'Pastikan Anda menggunakan HTTPS atau localhost, dan izinkan akses kamera.';
+                }
+                resultDiv.innerHTML = `<span style="color: red;"><i class="fas fa-exclamation-triangle"></i> ${errorMsg}</span>`;
+                if (startBtn) startBtn.style.display = 'block';
+                if (stopBtn) stopBtn.style.display = 'none';
+                if (switchBtn) switchBtn.style.display = 'none';
+                html5QrCode = null;
+            }
+        }
+
+        // Mulai scan (dipanggil tombol)
+        async function startCameraScan() {
+            // Dapatkan daftar kamera terlebih dahulu
+            await getAvailableCameras();
+            await startCameraScanWithCamera();
+        }
+
+        // Ganti kamera (depan/belakang)
+        async function switchCamera() {
+            if (!isScanning || availableCameras.length < 2) return;
+            // Cari kamera yang bukan sedang dipakai
+            const currentId = currentCameraId;
+            const nextCamera = availableCameras.find(cam => cam.id !== currentId);
+            if (nextCamera) {
+                await startCameraScanWithCamera(nextCamera.id);
+                currentCameraId = nextCamera.id;
+            }
+        }
+
+        function stopCameraScan() {
+            if (html5QrCode && isScanning) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    isScanning = false;
+                    const startBtn = document.getElementById('btn-start-scan');
+                    const stopBtn = document.getElementById('btn-stop-scan');
+                    const switchBtn = document.getElementById('btn-switch-camera');
+                    if (startBtn) startBtn.style.display = 'block';
+                    if (stopBtn) stopBtn.style.display = 'none';
+                    if (switchBtn) switchBtn.style.display = 'none';
+                    document.getElementById('qr-result').innerHTML = '';
+                }).catch(err => console.warn(err));
+            }
+        }
+
+        function stopCameraAndClose() {
+            stopCameraScan();
+            closeModal('modalScanQR');
+        }
+
+        function handleQRScanResult(decodedText) {
+            const resultDiv = document.getElementById('qr-result');
+            if (!resultDiv) return;
+            
+            // Coba parse JSON jika QR berisi JSON
+            let asetId = null;
+            let noInv = null;
+            try {
+                const data = JSON.parse(decodedText);
+                asetId = data.id;
+                noInv = data.noInv || data.no_inventaris;
+            } catch(e) {
+                // Jika bukan JSON, coba sebagai teks biasa (nomor inventaris)
+                noInv = decodedText.trim();
+            }
+            
+            // Cari aset berdasarkan ID atau nomor inventaris
+            let asset = null;
+            if (asetId) {
+                asset = DB.assets.find(a => a.id == asetId);
+            }
+            if (!asset && noInv) {
+                asset = DB.assets.find(a => a.noInv === noInv || a.no_inventaris === noInv);
+            }
+            
+            if (asset) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Aset ditemukan!<br>
+                        <strong>${asset.nama}</strong><br>
+                        Inventaris: ${asset.noInv}<br>
+                        Kondisi: ${asset.kondisi}<br>
+                        Lokasi: ${asset.lokasi}<br>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">Lihat Detail</button>
+                    </div>
+                `;
+                // Optional: suara beep atau getar
+                if (navigator.vibrate) navigator.vibrate(200);
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i> Aset tidak ditemukan.<br>
+                        Data QR: ${decodedText.substring(0, 50)}${decodedText.length > 50 ? '...' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Event listener untuk tombol scan
+        document.addEventListener('DOMContentLoaded', function() {
+            const startScanBtn = document.getElementById('btn-start-scan');
+            if (startScanBtn) startScanBtn.addEventListener('click', startCameraScan);
+            
+            const stopScanBtn = document.getElementById('btn-stop-scan');
+            if (stopScanBtn) stopScanBtn.addEventListener('click', stopCameraScan);
+            
+            const switchCamBtn = document.getElementById('btn-switch-camera');
+            if (switchCamBtn) switchCamBtn.addEventListener('click', switchCamera);
+            
+            // Tombol FAB scan QR
+            const fabScan = document.getElementById('fabScanBtn');
+            if (fabScan) {
+                fabScan.addEventListener('click', function() {
+                    openModal('modalScanQR');
+                    // Jangan auto-start, biar user klik Mulai Scan
+                });
+            }
+        });
+
+        // Override openModal untuk reset state scan
+        const originalOpenModal = window.openModal;
+        window.openModal = function(modalId, skipReset) {
+            if (modalId === 'modalScanQR') {
+                // Reset state scan saat membuka modal scan
+                if (html5QrCode && isScanning) stopCameraScan();
+                const startBtn = document.getElementById('btn-start-scan');
+                const stopBtn = document.getElementById('btn-stop-scan');
+                const switchBtn = document.getElementById('btn-switch-camera');
+                if (startBtn) startBtn.style.display = 'block';
+                if (stopBtn) stopBtn.style.display = 'none';
+                if (switchBtn) switchBtn.style.display = 'none';
+                document.getElementById('qr-result').innerHTML = '';
+                // Hapus konten reader
+                const readerDiv = document.getElementById('qr-reader');
+                if (readerDiv) readerDiv.innerHTML = '';
+            }
+            originalOpenModal(modalId, skipReset);
+        };
     </script>
 </body>
 </html>
