@@ -10815,9 +10815,24 @@
         }
 
         // Buka modal Scan QR
+        // Fungsi untuk membuka modal scan QR (versi kamera)
         function openScanQRModal() {
-            document.getElementById('scanQRInput').value = '';
-            document.getElementById('scanQRResult').innerHTML = '';
+            // Hentikan kamera jika sedang aktif
+            if (typeof stopCameraScan === 'function') {
+                stopCameraScan();
+            }
+            // Reset area hasil scan
+            const resultDiv = document.getElementById('qr-result');
+            if (resultDiv) resultDiv.innerHTML = '';
+            // Reset tombol kontrol
+            const startBtn = document.getElementById('btn-start-scan');
+            const stopBtn = document.getElementById('btn-stop-scan');
+            if (startBtn) startBtn.style.display = 'block';
+            if (stopBtn) stopBtn.style.display = 'none';
+            // Bersihkan area reader
+            const readerDiv = document.getElementById('qr-reader');
+            if (readerDiv) readerDiv.innerHTML = '';
+            // Buka modal
             openModal('modalScanQR');
         }
 
@@ -10861,7 +10876,11 @@
             const fabApproval = document.getElementById('fabApprovalBtn');
             const fabScan = document.getElementById('fabScanBtn');
             if (fabApproval) fabApproval.addEventListener('click', openApprovalModal);
-            if (fabScan) fabScan.addEventListener('click', openScanQRModal);
+            if (fabScan) {
+            fabScan.addEventListener('click', function() {
+                openScanQRModal();  // panggil fungsi yang sudah diperbaiki
+            });
+        }
             
             const simulateBtn = document.getElementById('simulateScanBtn');
             if (simulateBtn) simulateBtn.addEventListener('click', simulateCameraScan);
@@ -11252,6 +11271,13 @@
             }
             originalOpenModal(modalId, skipReset);
         };
+
+        function stopCameraAndClose() {
+            if (typeof stopCameraScan === 'function') {
+                stopCameraScan();
+            }
+            closeModal('modalScanQR');
+        }
     </script>
 </body>
 </html>
