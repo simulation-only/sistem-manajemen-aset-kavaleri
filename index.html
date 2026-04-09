@@ -1138,65 +1138,6 @@
         @media (max-width: 768px) {
             .mission-kanban { grid-template-columns: 1fr; }
         }
-
-        /* ============================================
-        RESPONSIVE FIX: Detail Aset Hasil Scan QR
-        ============================================ */
-        @media (max-width: 768px) {
-            /* Container hasil scan QR */
-            #qr-result .alert {
-                padding: 16px !important;
-                margin: 8px !important;
-                font-size: 14px;
-            }
-            /* Ubah grid 2 kolom menjadi 1 kolom (stack) */
-            #qr-result .info-grid {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 12px !important;
-                margin: 16px 0 !important;
-            }
-            /* Setiap baris info menjadi flex row dengan label dan value */
-            #qr-result .info-grid > div {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: baseline !important;
-                flex-wrap: wrap;
-                border-bottom: 1px dashed var(--gray-200);
-                padding-bottom: 6px;
-            }
-            #qr-result .info-grid > div strong {
-                font-weight: 700;
-                color: var(--primary);
-                width: 40%;
-            }
-            #qr-result .info-grid > div > div:last-child {
-                width: 55%;
-                text-align: right;
-                word-break: break-word;
-            }
-            /* Tombol aksi (Lihat Detail, Scan Lagi) */
-            #qr-result .mt-2 {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 12px !important;
-                margin-top: 16px !important;
-            }
-            #qr-result .btn {
-                width: 100% !important;
-                padding: 12px !important;
-                font-size: 16px !important;
-                text-align: center;
-                justify-content: center;
-            }
-            /* Badge kondisi agar tidak overflow */
-            #qr-result .badge {
-                white-space: normal;
-                word-break: break-word;
-                display: inline-block;
-                padding: 4px 8px;
-            }
-        }
         
         .kanban-col {
             background: var(--gray-50);
@@ -11150,28 +11091,20 @@
             console.log("Aset ditemukan via:", searchMethod, asset);
             
             const detailHtml = `
-                <div class="alert alert-success" style="padding: 16px;">
-                    <h4 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <i class="fas fa-check-circle" style="color: var(--success);"></i> 
-                        <span>Detail Aset</span>
-                        <small style="font-size: 12px; color: var(--gray-500);">(${searchMethod})</small>
-                    </h4>
-                    <div class="info-grid scan-result-detail" style="display: flex; flex-direction: column; gap: 12px;">
-                        <div class="info-row"><strong>Nama</strong><span>${asset.nama}</span></div>
-                        <div class="info-row"><strong>No. Inventaris</strong><span>${asset.noInv || '-'}</span></div>
-                        <div class="info-row"><strong>Kategori</strong><span>${getKategoriLabel(asset.kategori)}</span></div>
-                        <div class="info-row"><strong>Kondisi</strong><span>${getKondisiBadge(asset.kondisi)}</span></div>
-                        <div class="info-row"><strong>Lokasi</strong><span>${asset.lokasi || '-'}</span></div>
-                        <div class="info-row"><strong>Penanggung Jawab</strong><span>${asset.pj || '-'}</span></div>
-                        <div class="info-row"><strong>Nilai Aset</strong><span>Rp ${formatNumber(asset.nilai)}</span></div>
+                <div class="alert alert-success">
+                    <h4><i class="fas fa-check-circle"></i> Detail Aset <small>(${searchMethod})</small></h4>
+                    <div class="info-grid" style="grid-template-columns:1fr 1fr; gap:8px;">
+                        <div><strong>Nama:</strong></div><div>${asset.nama}</div>
+                        <div><strong>No.Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
+                        <div><strong>Kategori:</strong></div><div>${getKategoriLabel(asset.kategori)}</div>
+                        <div><strong>Kondisi:</strong></div><div>${getKondisiBadge(asset.kondisi)}</div>
+                        <div><strong>Lokasi:</strong></div><div>${asset.lokasi || '-'}</div>
+                        <div><strong>PJ:</strong></div><div>${asset.pj || '-'}</div>
+                        <div><strong>Nilai:</strong></div><div>Rp ${formatNumber(asset.nilai)}</div>
                     </div>
-                    <div class="mt-2" style="display: flex; gap: 12px; margin-top: 20px; flex-direction: column;">
-                        <button class="btn btn-primary" style="width: 100%;" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">
-                            <i class="fas fa-eye"></i> Lihat Detail Lengkap
-                        </button>
-                        <button class="btn btn-secondary" style="width: 100%;" onclick="resetAndScanAgain()">
-                            <i class="fas fa-qrcode"></i> Scan Lagi
-                        </button>
+                    <div class="mt-2">
+                        <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">Lihat Detail</button>
+                        <button class="btn btn-secondary btn-sm" onclick="resetAndScanAgain()">Scan Lagi</button>
                     </div>
                 </div>
             `;
