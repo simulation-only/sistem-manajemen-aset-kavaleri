@@ -6557,7 +6557,7 @@
 
             // Siapkan data yang akan disimpan di dalam QR Code
             const qrData = JSON.stringify({
-                id: aset.id,
+                id: aset.id,  // sudah number
                 noInv: aset.noInv,
                 nama: aset.nama
             });
@@ -6645,8 +6645,17 @@
             
             openModal('modalPreviewFoto');
         }
-        function getKondisiBadge(k) { const b = { 'baik': 'success', 'rusak_ringan': 'warning', 'rusak_berat': 'danger', 'maintenance': 'info' }; return `<span class="badge badge-${b[k] || 'secondary'}">${k}</span>`; }
 
+        function getKondisiBadge(kondisi) {
+            const badges = {
+                'baik': '<span class="badge badge-success">Baik</span>',
+                'rusak_ringan': '<span class="badge badge-warning">Rusak Ringan</span>',
+                'rusak_berat': '<span class="badge badge-danger">Rusak Berat</span>',
+                'maintenance': '<span class="badge badge-info">Maintenance</span>'
+            };
+            return badges[kondisi] || '<span class="badge badge-secondary">' + kondisi + '</span>';
+        }
+        
         function handleFotoAset(event) {
             const files = event.target.files;
             for (let i = 0; i < files.length; i++) {
@@ -11011,45 +11020,95 @@
             const resultDiv = document.getElementById('qr-result');
             if (!resultDiv) return;
             
-            // Coba parse JSON jika QR berisi JSON
+            console.log("Raw QR result:", decodedText);
+            
             let asetId = null;
             let noInv = null;
+            let namaAset = null;
+            
+            // Coba parse JSON
             try {
                 const data = JSON.parse(decodedText);
-                asetId = data.id;
-                noInv = data.noInv || data.no_inventaris;
+                asetId = data.id ? parseInt(data.id) : null;  // pastikan integer
+                noInv = data.noInv || data.no_inventaris || null;
+                namaAset = data.nama || null;
+                console.log("Parsed JSON:", { asetId, noInv, namaAset });
             } catch(e) {
-                // Jika bukan JSON, coba sebagai teks biasa (nomor inventaris)
+                // Bukan JSON, coba sebagai teks biasa (nomor inventaris)
                 noInv = decodedText.trim();
+                console.log("Plain text as noInv:", noInv);
             }
             
-            // Cari aset berdasarkan ID atau nomor inventaris
+            // Cari aset berdasarkan ID (prioritas) atau nomor inventaris
             let asset = null;
             if (asetId) {
-                asset = DB.assets.find(a => a.id == asetId);
+                asset = DB.assets.find(a => a.id === asetId);
+                if (asset) console.log("Found by ID:", asset.id);
             }
             if (!asset && noInv) {
                 asset = DB.assets.find(a => a.noInv === noInv || a.no_inventaris === noInv);
+                if (asset) console.log("Found by noInv:", asset.noInv);
+            }
+            if (!asset && namaAset) {
+                asset = DB.assets.find(a => a.nama.toLowerCase().includes(namaAset.toLowerCase()));
+                if (asset) console.log("Found by name:", asset.nama);
             }
             
             if (asset) {
-                resultDiv.innerHTML = `
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i> Aset ditemukan!<br>
-                        <strong>${asset.nama}</strong><br>
-                        Inventaris: ${asset.noInv}<br>
-                        Kondisi: ${asset.kondisi}<br>
-                        Lokasi: ${asset.lokasi}<br>
-                        <button class="btn btn-primary btn-sm mt-2" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">Lihat Detail</button>
+                // Tampilkan detail LENGKAP aset dalam modal
+                const detailHtml = `
+                    <div class="alert alert-success" style="text-align: left; max-height: 70vh; overflow-y: auto;">
+                        <h4 style="color: var(--primary); margin-bottom: 12px;">
+                            <i class="fas fa-check-circle"></i> Detail Aset
+                        </h4>
+                        <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div><strong>Nama Aset:</strong></div><div>${asset.nama}</div>
+                            <div><strong>Nomor Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
+                            <div><strong>Kategori:</strong></div><div>${getKategoriLabel(asset.kategori)}</div>
+                            <div><strong>Nomor Seri:</strong></div><div>${asset.noSeri || '-'}</div>
+                            <div><strong>Nomor Polisi:</strong></div><div>${asset.nopol || '-'}</div>
+                            <div><strong>Merk/Pabrikan:</strong></div><div>${asset.merk || '-'}</div>
+                            <div><strong>Tahun:</strong></div><div>${asset.tahun || '-'}</div>
+                            <div><strong>Kondisi:</strong></div><div>${getKondisiBadge(asset.kondisi)}</div>
+                            <div><strong>Status:</strong></div><div>${asset.status || '-'}</div>
+                            <div><strong>Lokasi Satuan:</strong></div><div>${asset.lokasi || '-'}</div>
+                            <div><strong>Penanggung Jawab:</strong></div><div>${asset.pj || '-'}</div>
+                            <div><strong>Nilai Aset:</strong></div><div>Rp ${formatNumber(asset.nilai || 0)}</div>
+                            <div><strong>Jam Operasi:</strong></div><div>${asset.jamOperasi || 0} Jam</div>
+                            <div><strong>Kilometer:</strong></div><div>${asset.kilometer || 0} KM</div>
+                            <div><strong>Tanggal Perolehan:</strong></div><div>${asset.tanggalPerolehan || '-'}</div>
+                            <div><strong>Sumber Anggaran:</strong></div><div>${asset.anggaran || '-'}</div>
+                        </div>
+                        <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+                            <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">
+                                <i class="fas fa-external-link-alt"></i> Buka Halaman Detail
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="stopCameraScan(); document.getElementById('qr-result').innerHTML = '';">
+                                <i class="fas fa-redo"></i> Scan Lagi
+                            </button>
+                        </div>
                     </div>
                 `;
-                // Optional: suara beep atau getar
+                resultDiv.innerHTML = detailHtml;
+                
+                // Optional: getar/vibrate
                 if (navigator.vibrate) navigator.vibrate(200);
+                
+                // Hentikan kamera setelah scan berhasil (agar tidak terus scanning)
+                stopCameraScan();
+                
             } else {
+                // Aset tidak ditemukan
                 resultDiv.innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-times-circle"></i> Aset tidak ditemukan.<br>
-                        Data QR: ${decodedText.substring(0, 50)}${decodedText.length > 50 ? '...' : ''}
+                        Data QR: ${decodedText.substring(0, 80)}${decodedText.length > 80 ? '...' : ''}<br>
+                        <small>Pastikan QR Code sesuai dengan data aset yang terdaftar.</small>
+                        <div style="margin-top: 12px;">
+                            <button class="btn btn-secondary btn-sm" onclick="stopCameraScan(); document.getElementById('qr-result').innerHTML = ''; startCameraScan();">
+                                <i class="fas fa-redo"></i> Scan Ulang
+                            </button>
+                        </div>
                     </div>
                 `;
             }
