@@ -693,7 +693,7 @@
         .modal-close:hover {
             color: var(--danger); 
         }
-        .modal-body { padding: 24px; }
+        .modal-body { padding: 24px; overflow-y: auto;}
         .modal-footer {
             padding: 16px 24px;
             border-top: 1px solid var(--gray-200);
@@ -2185,6 +2185,12 @@
         .scan-controls button {
             flex: 1;
             min-width: 120px;
+        }
+        #qr-result {
+            display: block !important;
+            visibility: visible !important;
+            min-height: 100px;
+            margin-top: 16px;
         }
     </style>
 </head>
@@ -10836,41 +10842,6 @@
             openModal('modalScanQR');
         }
 
-        // Proses scan (manual input)
-        function processScanQR() {
-            const input = document.getElementById('scanQRInput').value.trim();
-            const resultDiv = document.getElementById('scanQRResult');
-            if (!input) {
-                resultDiv.innerHTML = '<div class="alert alert-warning">Masukkan Nomor Inventaris atau QR Code.</div>';
-                return;
-            }
-            // Cari aset berdasarkan noInv atau no_inventaris
-            const asset = DB.assets.find(a => a.noInv === input || a.no_inventaris === input);
-            if (asset) {
-                resultDiv.innerHTML = `
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i> Aset ditemukan!<br>
-                        <strong>${asset.nama}</strong><br>
-                        Inventaris: ${asset.noInv}<br>
-                        Kondisi: ${asset.kondisi}<br>
-                        Lokasi: ${asset.lokasi}<br>
-                        <button class="btn btn-primary btn-sm mt-2" onclick="viewDetailAset(${asset.id}); closeModal('modalScanQR');">Lihat Detail</button>
-                    </div>
-                `;
-            } else {
-                resultDiv.innerHTML = '<div class="alert alert-danger">Aset tidak ditemukan. Periksa kembali nomor inventaris.</div>';
-            }
-        }
-
-        // Simulasi scan kamera (demo)
-        function simulateCameraScan() {
-            // Demo: langsung isi dengan contoh nomor inventaris
-            const demoInv = DB.assets.length > 0 ? DB.assets[0].noInv : 'INV-2024-001';
-            document.getElementById('scanQRInput').value = demoInv;
-            processScanQR();
-            showToast('Demo scan: menggunakan nomor inventaris pertama', 'info');
-        }
-
         // Pasang event listener untuk tombol FAB dan scan
         document.addEventListener('DOMContentLoaded', function() {
             const fabApproval = document.getElementById('fabApprovalBtn');
@@ -10881,9 +10852,6 @@
                 openScanQRModal();  // panggil fungsi yang sudah diperbaiki
             });
         }
-            
-            const simulateBtn = document.getElementById('simulateScanBtn');
-            if (simulateBtn) simulateBtn.addEventListener('click', simulateCameraScan);
             
             const scanInput = document.getElementById('scanQRInput');
             if (scanInput) scanInput.addEventListener('keypress', function(e) {
@@ -11073,131 +11041,70 @@
 
         function handleQRScanResult(decodedText) {
             const resultDiv = document.getElementById('qr-result');
-            if (!resultDiv) return;
-            
-            // Tampilkan raw hasil scan untuk debugging
+            if (!resultDiv) {
+                console.error("Element #qr-result tidak ditemukan!");
+                return;
+            }
             console.log("RAW SCAN RESULT:", decodedText);
             
-            // Tampilkan di UI agar user tahu apa yang terbaca
-            resultDiv.innerHTML = `
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> Hasil scan mentah:<br>
-                    <code style="word-break: break-all;">${decodedText}</code>
-                    <br><small>Sedang mencari aset...</small>
-                </div>
-            `;
+            resultDiv.innerHTML = `<div class="alert alert-info">Memproses hasil scan...</div>`;
+            stopCameraScan(); // hentikan kamera setelah scan berhasil
             
-            // Hentikan kamera sementara agar tidak terus scan
-            stopCameraScan();
-            
-            // Cari aset dengan berbagai metode
             let asset = null;
             let searchMethod = "";
             
-            // Metode 1: Parse sebagai JSON
             try {
                 const data = JSON.parse(decodedText);
-                console.log("Parsed JSON:", data);
-                
-                // Coba cari berdasarkan id (konversi ke number)
                 if (data.id !== undefined) {
                     const idNum = Number(data.id);
-                    if (!isNaN(idNum)) {
-                        asset = DB.assets.find(a => a.id === idNum);
-                        if (asset) searchMethod = `ID = ${idNum}`;
-                    }
+                    asset = DB.assets.find(a => a.id === idNum);
+                    if (asset) searchMethod = `ID = ${idNum}`;
                 }
-                // Jika belum ketemu, cari berdasarkan noInv
                 if (!asset && data.noInv) {
-                    asset = DB.assets.find(a => a.noInv === data.noInv || a.no_inventaris === data.noInv);
+                    asset = DB.assets.find(a => a.noInv === data.noInv);
                     if (asset) searchMethod = `No.Inventaris = ${data.noInv}`;
                 }
-                // Jika belum, cari berdasarkan nama (case-insensitive, partial)
                 if (!asset && data.nama) {
                     asset = DB.assets.find(a => a.nama.toLowerCase().includes(data.nama.toLowerCase()));
                     if (asset) searchMethod = `Nama mengandung "${data.nama}"`;
                 }
-            } catch(e) {
-                console.warn("Bukan format JSON, coba sebagai teks biasa");
-            }
+            } catch(e) { /* bukan JSON */ }
             
-            // Metode 2: Jika bukan JSON atau belum ketemu, coba sebagai teks (No.Inventaris atau Nama)
             if (!asset) {
-                // Coba sebagai nomor inventaris
-                asset = DB.assets.find(a => a.noInv === decodedText || a.no_inventaris === decodedText);
+                asset = DB.assets.find(a => a.noInv === decodedText);
                 if (asset) searchMethod = `No.Inventaris langsung = ${decodedText}`;
             }
             if (!asset) {
-                // Coba sebagai nomor polisi
                 asset = DB.assets.find(a => a.nopol === decodedText);
                 if (asset) searchMethod = `No.Polisi = ${decodedText}`;
             }
-            if (!asset) {
-                // Coba sebagai substring nama (case insensitive)
-                const lowerText = decodedText.toLowerCase();
-                asset = DB.assets.find(a => a.nama.toLowerCase().includes(lowerText));
-                if (asset) searchMethod = `Nama mengandung "${decodedText}"`;
-            }
             
-            // Jika masih tidak ketemu, tampilkan semua aset untuk debugging (opsional)
             if (!asset) {
-                console.log("Daftar aset yang tersedia:", DB.assets.map(a => ({ id: a.id, nama: a.nama, noInv: a.noInv })));
-                resultDiv.innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-times-circle"></i> Aset TIDAK DITEMUKAN!<br>
-                        Hasil scan: <code>${decodedText}</code><br>
-                        <strong>Kemungkinan penyebab:</strong><br>
-                        - QR Code tidak sesuai dengan data aset yang terdaftar.<br>
-                        - Format QR berbeda (misal berisi teks biasa, bukan ID/inventaris).<br>
-                        <button class="btn btn-secondary btn-sm mt-2" onclick="startCameraScan()">Scan Ulang</button>
-                        <button class="btn btn-primary btn-sm mt-2" onclick="showManualInput()">Input Manual</button>
-                    </div>
-                `;
+                resultDiv.innerHTML = `<div class="alert alert-danger">Aset tidak ditemukan!<br><button class="btn btn-secondary btn-sm mt-2" onclick="startCameraScan()">Scan Ulang</button></div>`;
                 return;
             }
             
-            // ========== ASET DITEMUKAN ==========
             console.log("Aset ditemukan via:", searchMethod, asset);
             
-            // Format detail lengkap
             const detailHtml = `
-                <div class="alert alert-success" style="text-align: left; max-height: 70vh; overflow-y: auto;">
-                    <h4 style="color: var(--primary); margin-bottom: 12px;">
-                        <i class="fas fa-check-circle"></i> Detail Aset
-                        <span style="float: right; font-size: 12px; font-weight: normal;">(ditemukan via: ${searchMethod})</span>
-                    </h4>
-                    <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div><strong>Nama Aset:</strong></div><div>${asset.nama}</div>
-                        <div><strong>Nomor Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
+                <div class="alert alert-success">
+                    <h4><i class="fas fa-check-circle"></i> Detail Aset <small>(${searchMethod})</small></h4>
+                    <div class="info-grid" style="grid-template-columns:1fr 1fr; gap:8px;">
+                        <div><strong>Nama:</strong></div><div>${asset.nama}</div>
+                        <div><strong>No.Inventaris:</strong></div><div>${asset.noInv || '-'}</div>
                         <div><strong>Kategori:</strong></div><div>${getKategoriLabel(asset.kategori)}</div>
-                        <div><strong>Nomor Seri:</strong></div><div>${asset.noSeri || '-'}</div>
-                        <div><strong>Nomor Polisi:</strong></div><div>${asset.nopol || '-'}</div>
-                        <div><strong>Merk/Pabrikan:</strong></div><div>${asset.merk || '-'}</div>
-                        <div><strong>Tahun:</strong></div><div>${asset.tahun || '-'}</div>
                         <div><strong>Kondisi:</strong></div><div>${getKondisiBadge(asset.kondisi)}</div>
-                        <div><strong>Status:</strong></div><div>${asset.status || '-'}</div>
-                        <div><strong>Lokasi Satuan:</strong></div><div>${asset.lokasi || '-'}</div>
-                        <div><strong>Penanggung Jawab:</strong></div><div>${asset.pj || '-'}</div>
-                        <div><strong>Nilai Aset:</strong></div><div>Rp ${formatNumber(asset.nilai || 0)}</div>
-                        <div><strong>Jam Operasi:</strong></div><div>${asset.jamOperasi || 0} Jam</div>
-                        <div><strong>Kilometer:</strong></div><div>${asset.kilometer || 0} KM</div>
-                        <div><strong>Tanggal Perolehan:</strong></div><div>${asset.tanggalPerolehan || '-'}</div>
-                        <div><strong>Sumber Anggaran:</strong></div><div>${asset.anggaran || '-'}</div>
+                        <div><strong>Lokasi:</strong></div><div>${asset.lokasi || '-'}</div>
+                        <div><strong>PJ:</strong></div><div>${asset.pj || '-'}</div>
+                        <div><strong>Nilai:</strong></div><div>Rp ${formatNumber(asset.nilai)}</div>
                     </div>
-                    ${asset.foto && asset.foto.length > 0 ? `<div style="margin-top: 12px;"><strong>Foto:</strong><br><div class="image-preview" style="grid-template-columns: repeat(auto-fill, minmax(80px,1fr));">${asset.foto.map(f => `<img src="${f}" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">`).join('')}</div></div>` : ''}
-                    <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
-                        <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">
-                            <i class="fas fa-external-link-alt"></i> Buka Halaman Detail
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="resetAndScanAgain()">
-                            <i class="fas fa-redo"></i> Scan Lagi
-                        </button>
+                    <div class="mt-2">
+                        <button class="btn btn-primary btn-sm" onclick="viewDetailAset(${asset.id}); stopCameraAndClose();">Lihat Detail</button>
+                        <button class="btn btn-secondary btn-sm" onclick="resetAndScanAgain()">Scan Lagi</button>
                     </div>
                 </div>
             `;
             resultDiv.innerHTML = detailHtml;
-            
-            // Getar jika support
             if (navigator.vibrate) navigator.vibrate(200);
         }
 
